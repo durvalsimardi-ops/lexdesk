@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dominus — Gestão Jurídica</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0B0B0D;
+    --bg2: #111216;
+    --bg3: #171719;
+    --bg4: #1E1E22;
+    --border: rgba(198,169,107,0.12);
+    --gold: #C6A96B;
+    --gold2: #E0C48F;
+    --gold-dim: rgba(198,169,107,0.12);
+    --gold-dim2: rgba(198,169,107,0.06);
+    --text: #FFFFFF;
+    --text2: #B3B3BD;
+    --text3: #71717A;
+    --red: #7A1F2B;
+    --red-dim: rgba(122,31,43,0.2);
+    --green: #1F7A63;
+    --green-dim: rgba(31,122,99,0.2);
+    --blue: #1C3D5A;
+    --blue-dim: rgba(28,61,90,0.25);
+    --amber: #C6A96B;
+    --amber-dim: rgba(198,169,107,0.15);
+    --radius: 10px;
+    --sidebar: 240px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: linear-gradient(180deg, #0B0B0D 0%, #111216 100%);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    position: relative;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.25;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: var(--sidebar);
+    background: linear-gradient(180deg, #0A0A0D 0%, #0E0E12 100%);
+    border-right: 1px solid rgba(198,169,107,0.08);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+    transition: transform 0.3s ease;
+  }
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 99;
+  }
+  .sidebar-overlay.active { display: block; }
+  .hamburger {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .hamburger:hover { background: var(--bg3); }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      transform: translateX(-100%);
+      width: 280px;
+    }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0 !important; }
+    .hamburger { display: flex; align-items: center; }
+    .topbar { padding: 0 16px; }
+    .content { padding: 20px 16px; }
+    .kpi-row { grid-template-columns: 1fr 1fr; }
+    .dash-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .fin-total { grid-template-columns: 1fr; }
+  }
+  .logo {
+    padding: 28px 24px 22px;
+    border-bottom: 1px solid rgba(198,169,107,0.08);
+  }
+  .logo-mark {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--gold2) 0%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.02em;
+  }
+  .logo-sub {
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-top: 3px;
+    font-weight: 500;
+    opacity: 0.7;
+  }
+  .nav { flex: 1; padding: 16px 0; }
+  .nav-section {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.5;
+    padding: 12px 24px 6px;
+    font-weight: 600;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 24px;
+    cursor: pointer;
+    color: #B3B3BD;
+    transition: all 0.2s ease;
+    position: relative;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.1px;
+  }
+  .nav-item:hover { color: #FFFFFF; background: rgba(198,169,107,0.06); }
+  .nav-item.active {
+    color: var(--gold);
+    background: rgba(198,169,107,0.08);
+    border-left: 3px solid #C6A96B;
+    padding-left: 21px;
+  }
+  .nav-item.active::before {
+    display: none;
+  }
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--red);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 20px;
+  }
+  .user-area {
+    padding: 18px 24px;
+    border-top: 1px solid rgba(198,169,107,0.08);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0,0,0,0.15);
+  }
+  .user-avatar {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, rgba(198,169,107,0.18), rgba(198,169,107,0.06));
+    border: 1px solid rgba(198,169,107,0.3);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+  .user-name { font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: 0.2px; }
+  .user-role { font-size: 10px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; }
+
+  /* MAIN */
+  .main {
+    margin-left: var(--sidebar);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  .topbar {
+    background: rgba(10,10,13,0.97);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(198,169,107,0.08);
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: 0.3px;
+  }
+  .topbar-actions { display: flex; gap: 10px; align-items: center; }
+  .btn {
+    padding: 8px 16px;
+    border-radius: 7px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #C6A96B 0%, #D4B87A 50%, #E0C48F 100%);
+    color: #0B0B0D;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(198,169,107,0.25);
+  }
+  .btn-primary:hover { background: linear-gradient(135deg, #D4B87A 0%, #E0C48F 100%); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(198,169,107,0.35); }
+  .btn-ghost {
+    background: transparent;
+    color: #B3B3BD;
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: all 0.2s ease;
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.05); color: #FFFFFF; border-color: rgba(198,169,107,0.25); }
+  .btn-danger {
+    background: var(--red-dim);
+    color: #e74c3c;
+    border: 1px solid rgba(192,57,43,0.3);
+  }
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+  .content { padding: 32px 36px; flex: 1; }
+
+  /* PANELS */
+  .panel-grid { display: none; }
+  .panel-grid.active { display: block; }
+
+  /* DASHBOARD */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+  .kpi {
+    background: #12141A;
+    border: 1px solid rgba(198,169,107,0.12);
+    border-radius: 12px;
+    padding: 26px 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .kpi::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .kpi { transition: transform 0.15s, box-shadow 0.15s; }
+  .kpi[onclick]:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.45); }
+  .kpi.gold::before { background: var(--gold); }
+  .kpi.red::before { background: var(--red); }
+  .kpi.green::before { background: var(--green); }
+  .kpi.blue::before { background: var(--blue); }
+  .kpi-label { font-size: 9px; color: #8A8A95; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 600; margin-bottom: 2px; }
+  .kpi-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    font-weight: 700;
+    margin: 10px 0 4px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
+  }
+  .kpi.gold .kpi-value { color: var(--gold); }
+  .kpi.red .kpi-value { color: #e74c3c; }
+  .kpi.green .kpi-value { color: var(--gold); }
+  .kpi.blue .kpi-value { color: var(--blue); }
+  .kpi-sub { font-size: 11px; color: #8A8A95; margin-top: 3px; letter-spacing: 0.05em; }
+
+  .dash-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  .card {
+    background: #12141A;
+    border: 1px solid rgba(198,169,107,0.12);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  }
+  .card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(198,169,107,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: #B3B3BD;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .card-body { padding: 4px 0; }
+
+  .prazo-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 24px;
+    border-bottom: 1px solid rgba(198,169,107,0.07);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .prazo-item:last-child { border-bottom: none; }
+  .prazo-item:hover { background: rgba(198,169,107,0.05); }
+  .prazo-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .prazo-dot.urgente { background: var(--red); }
+  .prazo-dot.atencao { background: var(--amber); }
+  .prazo-dot.ok { background: var(--green); }
+  .prazo-info { flex: 1; min-width: 0; }
+  .prazo-desc { font-size: 13px; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; letter-spacing: 0.1px; }
+  .prazo-proc { font-size: 11px; color: #8A8A95; margin-top: 3px; letter-spacing: 0.02em; font-weight: 400; }
+  .prazo-dias {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    letter-spacing: 0.05em;
+  }
+  .prazo-dias.urgente { background: rgba(122,31,43,0.15); color: #C0475A; border: 1px solid rgba(122,31,43,0.2); }
+  .prazo-dias.atencao { background: rgba(198,169,107,0.12); color: #C6A96B; border: 1px solid rgba(198,169,107,0.2); }
+  .prazo-dias.ok { background: rgba(31,122,99,0.15); color: #2A9E82; border: 1px solid rgba(31,122,99,0.2); }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left;
+    padding: 12px 18px;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #8A8A95;
+    border-bottom: 1px solid rgba(198,169,107,0.1);
+    font-weight: 700;
+  }
+  td {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(198,169,107,0.07);
+    font-size: 13px;
+    color: #B3B3BD;
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(198,169,107,0.04); }
+  td.highlight { color: #FFFFFF; font-weight: 600; letter-spacing: 0.1px; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .badge-ativo { background: var(--green-dim); color: var(--green); }
+  .badge-arquivado { background: var(--bg4); color: var(--text3); }
+  .badge-aguardando { background: var(--amber-dim); color: var(--amber); }
+  .badge-pago { background: var(--green-dim); color: var(--green); }
+  .badge-pendente { background: var(--amber-dim); color: var(--amber); }
+  .badge-vencido { background: var(--red-dim); color: #e74c3c; }
+
+  .action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text3);
+    font-size: 16px;
+    padding: 4px 6px;
+    border-radius: 5px;
+    transition: all 0.1s;
+  }
+  .action-btn:hover { background: var(--bg4); color: var(--text); }
+
+  /* TIMELINE */
+  .timeline { padding: 16px 20px; }
+  .tl-item {
+    display: flex;
+    gap: 14px;
+    padding-bottom: 20px;
+    position: relative;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 28px;
+    bottom: 0;
+    width: 1px;
+    background: rgba(198,169,107,0.1);
+  }
+  .tl-item:last-child::before { display: none; }
+  .tl-dot {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: #12141A;
+    border: 1px solid rgba(198,169,107,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .tl-dot.gold { border-color: rgba(198,169,107,0.4); background: rgba(198,169,107,0.08); }
+  .tl-body { flex: 1; padding-top: 4px; }
+  .tl-title { font-size: 13px; color: var(--text); font-weight: 500; }
+  .tl-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--bg2);
+    border: 1px solid rgba(198,169,107,0.2);
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(198,169,107,0.05);
+    width: 560px;
+    max-width: 95vw;
+    max-height: 85vh;
+    overflow-y: auto;
+    transform: translateY(20px);
+    transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(198,169,107,0.1);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--text);
+    letter-spacing: 0.3px;
+    font-weight: 600;
+  }
+  .modal-close {
+    background: none; border: none; cursor: pointer;
+    color: var(--text3); font-size: 20px;
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.1s;
+  }
+  .modal-close:hover { background: var(--bg4); color: var(--text); }
+  .modal-body { padding: 20px 24px; }
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid rgba(198,169,107,0.1);
+    display: flex; justify-content: flex-end; gap: 10px;
+  }
+
+  /* FORM */
+  .form-group { margin-bottom: 16px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  label { display: block; font-size: 10px; color: var(--text3); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; font-weight: 600; }
+  input, select, textarea {
+    width: 100%;
+    background: #0F1115;
+    border: 1px solid rgba(198,169,107,0.12);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    outline: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: rgba(198,169,107,0.5); box-shadow: 0 0 0 3px rgba(198,169,107,0.08); }
+  textarea { resize: vertical; min-height: 80px; }
+  select option { background: var(--bg3); }
+
+  /* IA CHAT */
+  .ia-area {
+    background: #0F1115;
+    border: 1px solid rgba(198,169,107,0.1);
+    box-shadow: inset 0 1px 0 rgba(198,169,107,0.04);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-top: 16px;
+  }
+  .ia-header {
+    padding: 12px 16px;
+    background: linear-gradient(90deg, rgba(198,169,107,0.08) 0%, rgba(198,169,107,0.04) 100%);
+    border-bottom: 1px solid rgba(198,169,107,0.12);
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--gold);
+    font-weight: 600; letter-spacing: 0.05em;
+  }
+  .ia-messages {
+    padding: 16px 18px;
+    min-height: 300px;
+    max-height: 480px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .ia-msg {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+    max-width: 90%;
+  }
+  .ia-msg.user {
+    background: rgba(198,169,107,0.1);
+    color: var(--text);
+    align-self: flex-end;
+    border: 1px solid rgba(198,169,107,0.15);
+  }
+  .ia-msg.assistant {
+    background: #1A1C22;
+    color: #FFFFFF;
+    align-self: flex-start;
+    border: 1px solid rgba(198,169,107,0.08);
+    max-width: 90%;
+    line-height: 1.7;
+  }
+  .ia-msg.loading { color: var(--text3); font-style: italic; }
+  .ia-input-row {
+    padding: 10px 12px;
+    border-top: 1px solid var(--border);
+    display: flex; gap: 8px;
+  }
+  .ia-input-row input { flex: 1; }
+  .ia-send {
+    background: var(--gold);
+    color: #0B0B0D;
+    border: none;
+    border-radius: 7px;
+    padding: 9px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+  .ia-send:hover { background: var(--gold2); box-shadow: 0 4px 12px rgba(198,169,107,0.3); }
+  .ia-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* SEARCH BAR */
+  .search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 22px;
+    align-items: center;
+  }
+  .search-bar input { max-width: 280px; }
+
+  /* FINANCEIRO */
+  .fin-total {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  /* DOCS */
+  .doc-list { padding: 8px 0; }
+  .doc-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 24px;
+    border-bottom: 1px solid rgba(198,169,107,0.07);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .doc-item:hover { background: var(--bg3); }
+  .doc-item:last-child { border-bottom: none; }
+  .doc-icon {
+    font-size: 18px;
+    width: 36px; height: 36px;
+    background: rgba(198,169,107,0.07);
+    border: 1px solid rgba(198,169,107,0.1);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .doc-name { font-size: 13px; color: #FFFFFF; font-weight: 600; letter-spacing: 0.1px; }
+  .doc-meta { font-size: 11px; color: #8A8A95; margin-top: 3px; }
+
+  /* UPLOAD ZONE */
+  .upload-zone {
+    border: 2px dashed rgba(198,169,107,0.2);
+    border-radius: 10px;
+    padding: 20px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: rgba(255,255,255,0.02);
+  }
+  .upload-zone:hover { border-color: rgba(198,169,107,0.4); background: rgba(198,169,107,0.04); }
+  .upload-zone.has-file { border-color: var(--green); background: var(--green-dim); }
+  .upload-icon { font-size: 22px; margin-bottom: 4px; }
+  .upload-txt { font-size: 13px; color: var(--text2); }
+  .upload-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text3);
+  }
+  .empty-icon { font-size: 36px; margin-bottom: 10px; }
+  .empty-text { font-size: 13px; }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+  /* NOTIFICATION */
+  .notif {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: #12141A;
+    border: 1px solid rgba(198,169,107,0.2);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--text);
+    z-index: 500;
+    max-width: 300px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+  .notif.show { opacity: 1; transform: translateY(0); }
+  .notif-title { font-weight: 600; color: var(--gold); margin-bottom: 3px; font-size: 12px; }
+
+  /* WELCOME POPUP */
+  .welcome-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(4px);
+    z-index: 300;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    animation: fadeInOverlay 0.4s ease 0.3s forwards;
+  }
+  @keyframes fadeInOverlay { to { opacity: 1; } }
+  .welcome-box {
+    background: linear-gradient(160deg, #141418 0%, #0F0F12 100%);
+    border: 1px solid rgba(198,169,107,0.25);
+    border-radius: 16px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(198,169,107,0.05);
+    width: 520px;
+    max-width: 95vw;
+    overflow: hidden;
+    transform: translateY(24px);
+    animation: slideUp 0.4s ease 0.3s forwards;
+  }
+  @keyframes slideUp { to { transform: translateY(0); } }
+  .welcome-header {
+    background: linear-gradient(160deg, #141210 0%, #0C0C0F 100%);
+    border-bottom: 1px solid rgba(198,169,107,0.1);
+    padding: 28px 28px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .welcome-header::before {
+    content: '⚖';
+    position: absolute;
+    right: 24px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 72px;
+    opacity: 0.06;
+    line-height: 1;
+  }
+  .welcome-greeting {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+    font-weight: 600;
+    opacity: 0.9;
+  }
+  .welcome-frase {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    color: var(--text);
+    line-height: 1.6;
+    font-style: italic;
+    letter-spacing: 0.2px;
+  }
+  .welcome-frase-autor {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 8px;
+    letter-spacing: 0.05em;
+  }
+  .welcome-body { padding: 20px 28px; }
+  .welcome-section-title {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #8A8A95;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+  }
+  .welcome-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .welcome-prazo-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(198,169,107,0.1);
+    background: rgba(255,255,255,0.03);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .welcome-prazo-item:hover { border-color: rgba(198,169,107,0.3); background: rgba(198,169,107,0.05); }
+  .welcome-prazo-item:last-child { margin-bottom: 0; }
+  .welcome-prazo-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 5px 12px;
+    border-radius: 7px;
+    flex-shrink: 0;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .welcome-prazo-badge.hoje { background: rgba(122,31,43,0.2); color: #C0475A; border: 1px solid rgba(122,31,43,0.25); }
+  .welcome-prazo-badge.urgente { background: rgba(122,31,43,0.15); color: #C0475A; border: 1px solid rgba(122,31,43,0.2); }
+  .welcome-prazo-badge.atencao { background: rgba(198,169,107,0.12); color: #C6A96B; border: 1px solid rgba(198,169,107,0.2); }
+  .welcome-prazo-badge.ok { background: rgba(31,122,99,0.15); color: #2A9E82; border: 1px solid rgba(31,122,99,0.2); }
+  .welcome-prazo-info { flex: 1; min-width: 0; }
+  .welcome-prazo-desc { font-size: 13px; color: #FFFFFF; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .welcome-prazo-proc { font-size: 11px; color: #8A8A95; margin-top: 3px; }
+  .welcome-empty {
+    text-align: center;
+    padding: 20px;
+    color: var(--text3);
+    font-size: 13px;
+  }
+  .welcome-footer {
+    padding: 16px 28px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .welcome-date { font-size: 12px; color: var(--text3); }
+  .welcome-close-btn {
+    background: var(--gold);
+    color: #0e0e10;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 22px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .welcome-close-btn:hover { background: var(--gold2); }
+
+  /* AREA TOGGLES */
+  .area-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 9px;
+    border: 1px solid rgba(198,169,107,0.1);
+    background: rgba(255,255,255,0.02);
+    cursor: pointer;
+    font-size: 13px;
+    color: #B3B3BD;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+  .area-toggle:hover { border-color: rgba(198,169,107,0.3); color: var(--text); background: rgba(198,169,107,0.04); }
+  .area-toggle.selected { border-color: rgba(198,169,107,0.45); background: rgba(198,169,107,0.08); color: var(--gold); }
+  .area-toggle input[type=checkbox] { display: none; }
+
+  /* SCROLL */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  .full-card { background: #12141A; border: 1px solid rgba(198,169,107,0.12); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.35); }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">Dominus</div>
+    <div class="logo-sub">Gestão Processual</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Principal</div>
+    <div class="nav-item active" onclick="navigate('dashboard')">
+      <span class="nav-icon">◈</span> Visão Geral
+    </div>
+    <div class="nav-item" onclick="navigate('clientes')">
+      <span class="nav-icon">◉</span> Clientes
+    </div>
+    <div class="nav-item" onclick="navigate('processos')">
+      <span class="nav-icon">◎</span> Processos
+    </div>
+    <div class="nav-section">Financeiro</div>
+    <div class="nav-item" onclick="navigate('honorarios')">
+      <span class="nav-icon">◇</span> Honorários
+    </div>
+    <div class="nav-section">Ferramentas</div>
+    <div class="nav-item" onclick="navigate('documentos')">
+      <span class="nav-icon">◻</span> Documentos
+    </div>
+    <div class="nav-item" onclick="navigate('ia')">
+      <span class="nav-icon">✦</span> Assistente IA
+    </div>
+    <div class="nav-item" onclick="navigate('config')">
+      <span class="nav-icon">⚙</span> Configurações
+    </div>
+  </nav>
+  <div class="user-area">
+    <div class="user-avatar">DR</div>
+    <div>
+      <div class="user-name">Dr. Rafael</div>
+      <div class="user-role">Advogado responsável</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="hamburger" onclick="toggleSidebar()" id="hamburgerBtn">☰</button>
+      <div class="page-title" id="pageTitle">Visão Geral</div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm" onclick="showNotif('🔔 Sem novos alertas no momento.')">🔔</button>
+      <button class="btn btn-primary btn-sm" id="topAction" onclick="openModal('processo')">Novo processo</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="panel-grid active" id="panel-dashboard">
+      <div class="kpi-row">
+        <div class="kpi gold" onclick="navigate('processos')" style="cursor:pointer" title="Ver processos">
+          <div class="kpi-label">Processos em Andamento</div>
+          <div class="kpi-value" id="kpi-processos">0</div>
+          <div class="kpi-sub">total em tramitação ↗</div>
+        </div>
+        <div class="kpi red" onclick="navigate('processos')" style="cursor:pointer" title="Ver prazos urgentes">
+          <div class="kpi-label">Prazos Críticos</div>
+          <div class="kpi-value" id="kpi-urgentes">0</div>
+          <div class="kpi-sub">vencimentos iminentes ↗</div>
+        </div>
+        <div class="kpi green" onclick="navigate('honorarios')" style="cursor:pointer;border-color:rgba(198,169,107,0.35);box-shadow:0 0 20px rgba(198,169,107,0.15),0 4px 20px rgba(0,0,0,0.4)" title="Ver honorários">
+          <div class="kpi-label">Honorários a Receber</div>
+          <div class="kpi-value" id="kpi-receber">R$ 0</div>
+          <div class="kpi-sub">valores pendentes ↗</div>
+        </div>
+        <div class="kpi blue" onclick="navigate('clientes')" style="cursor:pointer" title="Ver clientes">
+          <div class="kpi-label">Clientes</div>
+          <div class="kpi-value" id="kpi-clientes">0</div>
+          <div class="kpi-sub">com processos vinculados ↗</div>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Prazos Processuais</span>
+            <button class="btn btn-ghost btn-sm" onclick="navigate('processos')">Visualizar todos</button>
+          </div>
+          <div class="card-body" id="dash-prazos">
+            <div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Nenhum prazo registrado</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Clientes Recentes</span>
+            <button class="btn btn-ghost btn-sm" onclick="navigate('clientes')">Visualizar todos</button>
+          </div>
+          <div class="card-body" id="dash-clientes">
+            <div class="empty"><div class="empty-icon">👤</div><div class="empty-text">Nenhum cliente registrado</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENTES -->
+    <div class="panel-grid" id="panel-clientes">
+      <div class="search-bar">
+        <input type="text" placeholder="Buscar cliente..." id="searchCliente" oninput="renderClientes()">
+        <button class="btn btn-primary btn-sm" onclick="openModal('cliente')">+ Novo Cliente</button>
+      </div>
+      <div class="full-card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th><th>CPF/CNPJ</th><th>Telefone</th><th>Email</th><th>Processos</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="tb-clientes">
+              <tr><td colspan="6"><div class="empty"><div class="empty-icon">👤</div><div class="empty-text">Nenhum cliente registrado</div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROCESSOS -->
+    <div class="panel-grid" id="panel-processos">
+      <div class="search-bar">
+        <input type="text" placeholder="Buscar processo..." id="searchProcesso" oninput="renderProcessos()">
+        <button class="btn btn-primary btn-sm" onclick="openModal('processo')">Novo processo</button>
+      </div>
+      <div class="full-card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nº Processo</th><th>Cliente</th><th>Tipo</th><th>Próximo Prazo</th><th>Status</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="tb-processos">
+              <tr><td colspan="6"><div class="empty"><div class="empty-icon">⚖️</div><div class="empty-text">Nenhum processo registrado</div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- HONORÁRIOS -->
+    <div class="panel-grid" id="panel-honorarios">
+      <div class="fin-total">
+        <div class="kpi green">
+          <div class="kpi-label">Total Recebido</div>
+          <div class="kpi-value" style="font-size:22px" id="fin-recebido">R$ 0</div>
+        </div>
+        <div class="kpi amber" style="--amber: #e67e22;">
+          <div class="kpi-label">Pendente</div>
+          <div class="kpi-value" style="font-size:22px;color:var(--amber)" id="fin-pendente">R$ 0</div>
+        </div>
+        <div class="kpi red">
+          <div class="kpi-label">Vencido</div>
+          <div class="kpi-value" style="font-size:22px" id="fin-vencido">R$ 0</div>
+        </div>
+      </div>
+      <div class="search-bar">
+        <input type="text" placeholder="Buscar..." id="searchHon" oninput="renderHonorarios()">
+        <button class="btn btn-primary btn-sm" onclick="openModal('honorario')">+ Novo Lançamento</button>
+      </div>
+      <div class="full-card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Descrição</th><th>Cliente</th><th>Valor</th><th>Vencimento</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody id="tb-honorarios">
+              <tr><td colspan="6"><div class="empty"><div class="empty-icon">💰</div><div class="empty-text">Nenhum lançamento registrado</div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOCUMENTOS -->
+    <div class="panel-grid" id="panel-documentos">
+      <div class="search-bar">
+        <input type="text" placeholder="Buscar documento..." id="searchDoc" oninput="renderDocs()">
+        <button class="btn btn-primary btn-sm" onclick="openModal('documento')">+ Novo Documento</button>
+      </div>
+      <div class="full-card">
+        <div class="doc-list" id="lista-docs">
+          <div class="empty"><div class="empty-icon">📁</div><div class="empty-text">Nenhum documento cadastrado</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ASSISTENTE IA -->
+    <div class="panel-grid" id="panel-ia">
+      <div class="card" style="max-width:100%">
+        <div class="card-header">
+          <span class="card-title">✦ Consultoria Jurídica com IA</span>
+        </div>
+        <div style="padding:20px 24px">
+          <p style="color:var(--text);font-size:14px;margin-bottom:16px">Consulte prazos processuais, solicite minutas, tire dúvidas jurídicas ou peça análises fundamentadas do seu caso.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
+            <button class="btn btn-ghost" onclick="iaQuick('Quais são os prazos para recurso de apelação?')">📋 Prazo de apelação</button>
+            <button class="btn btn-ghost" onclick="iaQuick('Gere uma minuta de petição inicial para ação de cobrança')">✍️ Minuta de petição</button>
+            <button class="btn btn-ghost" onclick="iaQuick('Quais documentos preciso para ajuizar ação trabalhista?')">📄 Checklist trabalhista</button>
+          </div>
+          <div class="ia-area">
+            <div class="ia-header">✦ Dominus IA — Consultoria Jurídica Inteligente</div>
+            <div class="ia-messages" id="iaMsgs">
+              <div class="ia-msg assistant">Bem-vindo à Consultoria Jurídica Dominus IA. Estou preparado para auxiliar com prazos processuais, elaboração de minutas, checklist de documentos e análises jurídicas. Como posso ser útil?</div>
+            </div>
+            <div class="ia-input-row">
+              <input type="text" id="iaInput" placeholder="Insira sua consulta jurídica..." onkeydown="if(event.key==='Enter') enviarIA()">
+              <button class="ia-send" id="iaBtn" onclick="enviarIA()">▶</button>
+            </div>
+          </div>
+          <p style="font-size:12px;color:var(--text2);margin-top:12px">⚖️ As respostas são orientativas e não substituem a análise profissional do advogado responsável.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIGURAÇÕES -->
+    <div class="panel-grid" id="panel-config">
+      <div class="card" style="max-width:620px">
+        <div class="card-header">
+          <span class="card-title">⚙ Configurações do Escritório</span>
+        </div>
+        <div style="padding:20px 24px">
+
+          <div style="margin-bottom:28px">
+            <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;font-weight:600">Identidade</div>
+            <div class="form-row">
+              <div class="form-group"><label>Nome do Escritório</label><input id="cfg_nome" placeholder="Ex: Oliveira & Associados"></div>
+              <div class="form-group"><label>Nome do Advogado</label><input id="cfg_adv" placeholder="Dr. Rafael Oliveira"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>OAB</label><input id="cfg_oab" placeholder="Ex: OAB/PR 12.345"></div>
+              <div class="form-group"><label>Telefone</label><input id="cfg_tel" placeholder="(44) 99999-0000"></div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:28px">
+            <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;font-weight:600">Assistente IA</div>
+            <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--green);display:flex;align-items:center;gap:8px">
+              ✅ Módulo de IA ativo e operacional.
+            </div>
+            <div id="cfg_status" style="display:none;padding:10px 14px;border-radius:8px;font-size:12px;margin-top:8px"></div>
+            <button class="btn btn-ghost btn-sm" onclick="testarIA()" style="margin-top:10px">🔌 Verificar conexão</button>
+          </div>
+
+          <div style="margin-bottom:28px">
+            <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;font-weight:600">Áreas de Atuação</div>
+            <p style="font-size:12px;color:var(--text3);margin-bottom:12px">Selecione as áreas do escritório para personalizar o Assistente IA com o contexto jurídico correto.</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="cfg_areas_grid">
+              <label class="area-toggle" data-area="civil" onclick="toggleArea(this)"><input type="checkbox" value="civil"> Direito Civil</label>
+              <label class="area-toggle" data-area="trabalhista" onclick="toggleArea(this)"><input type="checkbox" value="trabalhista"> Direito Trabalhista</label>
+              <label class="area-toggle" data-area="criminal" onclick="toggleArea(this)"><input type="checkbox" value="criminal"> Direito Criminal</label>
+              <label class="area-toggle" data-area="familia" onclick="toggleArea(this)"><input type="checkbox" value="familia"> Direito de Família</label>
+              <label class="area-toggle" data-area="tributario" onclick="toggleArea(this)"><input type="checkbox" value="tributario"> Direito Tributário</label>
+              <label class="area-toggle" data-area="administrativo" onclick="toggleArea(this)"><input type="checkbox" value="administrativo"> Direito Administrativo</label>
+              <label class="area-toggle" data-area="previdenciario" onclick="toggleArea(this)"><input type="checkbox" value="previdenciario"> Direito Previdenciário</label>
+              <label class="area-toggle" data-area="consumidor" onclick="toggleArea(this)"><input type="checkbox" value="consumidor"> Direito do Consumidor</label>
+            </div>
+          </div>
+
+          <div style="padding-top:16px;border-top:1px solid var(--border);display:flex;justify-content:flex-end">
+            <button class="btn btn-primary" onclick="salvarConfig()">Salvar configurações</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<!-- MODAIS -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Novo</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<!-- WELCOME POPUP -->
+<div class="welcome-overlay" id="welcomeOverlay">
+  <div class="welcome-box">
+    <div class="welcome-header">
+      <div class="welcome-greeting">✦ Bem-vindo ao Dominus</div>
+      <div class="welcome-frase" id="welcomeFrase"></div>
+      <div class="welcome-frase-autor" id="welcomeAutor"></div>
+    </div>
+    <div class="welcome-body">
+      <div class="welcome-section-title">Prazos próximos</div>
+      <div id="welcomePrazos"></div>
+    </div>
+    <div class="welcome-footer">
+      <div class="welcome-date" id="welcomeDate"></div>
+      <button class="welcome-close-btn" onclick="fecharWelcome()">Acessar sistema →</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATION -->
+<div class="notif" id="notif">
+  <div class="notif-title" id="notifTitle">Dominus</div>
+  <div id="notifMsg"></div>
+</div>
+
+<script>
+// ── STATE ──
+let state = {
+  clientes: [],
+  processos: [],
+  honorarios: [],
+  documentos: [],
+};
+
+// Load from localStorage
+function loadState() {
+  try {
+    const saved = localStorage.getItem('dominus_state');
+    if (saved) state = JSON.parse(saved);
+  } catch(e) {}
+}
+function saveState() {
+  localStorage.setItem('dominus_state', JSON.stringify(state));
+}
+
+// ── NAVIGATION ──
+const panels = ['dashboard','clientes','processos','honorarios','documentos','ia','config'];
+const titles = { dashboard:'Visão Geral', clientes:'Clientes', processos:'Processos', honorarios:'Honorários', documentos:'Documentos', ia:'Consultoria IA', config:'Configurações' };
+const actions = { dashboard:'Novo processo', clientes:'Novo cliente', processos:'Novo processo', honorarios:'Novo lançamento', documentos:'Novo documento', ia:'', config:'' };
+const actionFns = { dashboard:()=>openModal('processo'), clientes:()=>openModal('cliente'), processos:()=>openModal('processo'), honorarios:()=>openModal('honorario'), documentos:()=>openModal('documento'), ia:()=>{}, config:()=>{} };
+
+function toggleSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('active');
+}
+
+function navigate(p) {
+  panels.forEach(id => {
+    document.getElementById('panel-'+id).classList.remove('active');
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  });
+  document.getElementById('panel-'+p).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(el => {
+    if (el.textContent.toLowerCase().includes(titles[p].toLowerCase().slice(0,4))) el.classList.add('active');
+  });
+  document.querySelectorAll('.nav-item')[panels.indexOf(p)].classList.add('active');
+  document.getElementById('pageTitle').textContent = titles[p];
+  const btn = document.getElementById('topAction');
+  btn.textContent = actions[p];
+  btn.onclick = actionFns[p];
+  btn.style.display = actions[p] ? '' : 'none';
+  if (p === 'dashboard') renderDashboard();
+  if (p === 'clientes') renderClientes();
+  if (p === 'processos') renderProcessos();
+  if (p === 'honorarios') renderHonorarios();
+  if (p === 'documentos') renderDocs();
+}
+
+// ── MODAL ──
+let currentModal = null;
+function openModal(type, id) {
+  currentModal = { type, id };
+  const overlay = document.getElementById('modalOverlay');
+  const titles_m = { cliente:'Novo Cliente', processo:'Novo Processo', honorario:'Novo Lançamento', documento:'Novo Documento', timeline:'Timeline do Processo' };
+  document.getElementById('modalTitle').textContent = id ? 'Editar' : titles_m[type];
+  document.getElementById('modalBody').innerHTML = getModalBody(type, id);
+  document.getElementById('modalFooter').innerHTML = getModalFooter(type, id);
+  overlay.classList.add('open');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function closeModalOutside(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+
+function getModalBody(type, id) {
+  if (type === 'cliente') {
+    const c = id ? state.clientes.find(x=>x.id===id) : {};
+    return `
+      <div class="form-row">
+        <div class="form-group"><label>Nome completo</label><input id="f_nome" value="${(c&&c.nome)||''}" placeholder="Dr. João Silva"></div>
+        <div class="form-group"><label>CPF / CNPJ</label><input id="f_cpf" value="${(c&&c.cpf)||''}" placeholder="000.000.000-00"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Telefone</label><input id="f_tel" value="${(c&&c.tel)||''}" placeholder="(44) 99999-0000"></div>
+        <div class="form-group"><label>Email</label><input id="f_email" value="${(c&&c.email)||''}" placeholder="cliente@email.com"></div>
+      </div>
+      <div class="form-group"><label>Endereço</label><input id="f_end" value="${(c&&c.end)||''}" placeholder="Rua, número, cidade"></div>
+      <div class="form-group"><label>Observações</label><textarea id="f_obs">${(c&&c.obs)||''}</textarea></div>`;
+  }
+  if (type === 'processo') {
+    const p = id ? state.processos.find(x=>x.id===id) : {};
+    const opts = state.clientes.map(c=>`<option value="${c.id}" ${(p&&p.clienteId===c.id)?'selected':''}>${c.nome}</option>`).join('');
+    return `
+      <div class="form-row">
+        <div class="form-group"><label>Nº do Processo</label><input id="f_num" value="${(p&&p.num)||''}" placeholder="0000000-00.0000.0.00.0000"></div>
+        <div class="form-group"><label>Cliente</label><select id="f_cliente"><option value="">Selecione...</option>${opts}</select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Tipo</label><select id="f_tipo">
+          ${['Cível','Trabalhista','Criminal','Família','Tributário','Administrativo','Outro'].map(t=>`<option ${(p&&p.tipo===t)?'selected':''}>${t}</option>`).join('')}
+        </select></div>
+        <div class="form-group"><label>Status</label><select id="f_status">
+          ${['Ativo','Aguardando','Arquivado'].map(t=>`<option ${(p&&p.status===t)?'selected':''}>${t}</option>`).join('')}
+        </select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Próximo Prazo</label><input type="date" id="f_prazo" value="${(p&&p.prazo)||''}"></div>
+        <div class="form-group"><label>Descrição do Prazo</label><input id="f_prazodesc" value="${(p&&p.prazodesc)||''}" placeholder="Ex: Contestação, Recurso..."></div>
+      </div>
+      <div class="form-group"><label>Objeto / Descrição</label><textarea id="f_objeto">${(p&&p.objeto)||''}</textarea></div>`;
+  }
+  if (type === 'honorario') {
+    const h = id ? state.honorarios.find(x=>x.id===id) : {};
+    const opts = state.clientes.map(c=>`<option value="${c.id}" ${(h&&h.clienteId===c.id)?'selected':''}>${c.nome}</option>`).join('');
+    return `
+      <div class="form-group"><label>Descrição</label><input id="f_desc" value="${(h&&h.desc)||''}" placeholder="Ex: Honorários advocatícios - Processo X"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Cliente</label><select id="f_hcliente"><option value="">Selecione...</option>${opts}</select></div>
+        <div class="form-group"><label>Valor (R$)</label><input id="f_valor" type="number" value="${(h&&h.valor)||''}" placeholder="0,00"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Vencimento</label><input type="date" id="f_hvenc" value="${(h&&h.venc)||''}"></div>
+        <div class="form-group"><label>Status</label><select id="f_hstatus">
+          ${['Pendente','Pago','Vencido'].map(t=>`<option ${(h&&h.status===t)?'selected':''}>${t}</option>`).join('')}
+        </select></div>
+      </div>
+      <div class="form-group"><label>Observações</label><textarea id="f_hobs">${(h&&h.obs)||''}</textarea></div>`;
+  }
+  if (type === 'documento') {
+    const opts = state.clientes.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('');
+    const opts2 = state.processos.map(p=>`<option value="${p.id}">${p.num}</option>`).join('');
+    return `
+      <div class="form-group"><label>Nome do Documento</label><input id="f_dnome" placeholder="Ex: Contrato, Procuração, Laudo..."></div>
+      <div class="form-row">
+        <div class="form-group"><label>Cliente</label><select id="f_dcliente"><option value="">Selecione...</option>${opts}</select></div>
+        <div class="form-group"><label>Processo</label><select id="f_dprocesso"><option value="">Nenhum</option>${opts2}</select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Tipo</label><select id="f_dtipo">
+          ${['Procuração','Contrato','Petição','Laudo','Sentença','Recurso','Identidade','CPF','Outro'].map(t=>`<option>${t}</option>`).join('')}
+        </select></div>
+        <div class="form-group"><label>Data</label><input type="date" id="f_ddata" value="${new Date().toISOString().slice(0,10)}"></div>
+      </div>
+      <div class="form-group">
+        <label>Arquivo PDF (opcional)</label>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('f_dpdf').click()">
+          <div class="upload-icon">📎</div>
+          <div class="upload-txt" id="uploadTxt">Clique para selecionar PDF</div>
+          <div class="upload-sub">Máximo 5 MB · salvo localmente no navegador</div>
+        </div>
+        <input type="file" id="f_dpdf" accept="application/pdf" style="display:none" onchange="handlePdfSelect(event)">
+      </div>
+      <div class="form-group"><label>Observações</label><textarea id="f_dobs" placeholder="Anotações sobre o documento..."></textarea></div>`;
+  }
+  if (type === 'timeline') {
+    const p = state.processos.find(x=>x.id===id);
+    if (!p) return '';
+    const tl = (p.timeline||[]).map(t=>`
+      <div class="tl-item">
+        <div class="tl-dot gold">📌</div>
+        <div class="tl-body">
+          <div class="tl-title">${t.titulo}</div>
+          <div class="tl-meta">${t.data} ${t.autor?'· '+t.autor:''}</div>
+          ${t.desc?`<div style="font-size:12px;color:var(--text2);margin-top:4px">${t.desc}</div>`:''}
+        </div>
+      </div>`).join('') || '<div class="empty"><div class="empty-text">Nenhuma movimentação registrada</div></div>';
+    return `
+      <div class="timeline">${tl}</div>
+      <div class="divider"></div>
+      <div class="form-group"><label>Nova Movimentação</label><input id="f_tltitulo" placeholder="Ex: Petição protocolada, Decisão recebida..."></div>
+      <div class="form-row">
+        <div class="form-group"><label>Data</label><input type="date" id="f_tldata" value="${new Date().toISOString().slice(0,10)}"></div>
+        <div class="form-group"><label>Responsável</label><input id="f_tlautor" placeholder="Dr. Rafael"></div>
+      </div>
+      <div class="form-group"><label>Detalhes</label><textarea id="f_tldesc"></textarea></div>`;
+  }
+  return '';
+}
+
+function getModalFooter(type, id) {
+  if (type === 'timeline') return `<button class="btn btn-ghost" onclick="closeModal()">Fechar</button><button class="btn btn-primary" onclick="salvarTimeline('${id}')">Adicionar</button>`;
+  return `<button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>${id?`<button class="btn btn-danger btn-sm" onclick="excluir('${type}','${id}')">Excluir</button>`:''}<button class="btn btn-primary" onclick="salvar('${type}','${id||''}')">Salvar</button>`;
+}
+
+// ── SALVAR ──
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function gv(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+function salvar(type, id) {
+  if (type === 'cliente') {
+    const obj = { id: id||uid(), nome: gv('f_nome'), cpf: gv('f_cpf'), tel: gv('f_tel'), email: gv('f_email'), end: gv('f_end'), obs: gv('f_obs') };
+    if (!obj.nome) { showNotif('Informe o nome do cliente.'); return; }
+    if (id) { const i = state.clientes.findIndex(x=>x.id===id); state.clientes[i]=obj; }
+    else state.clientes.push(obj);
+  } else if (type === 'processo') {
+    const obj = { id: id||uid(), num: gv('f_num'), clienteId: gv('f_cliente'), tipo: gv('f_tipo'), status: gv('f_status'), prazo: gv('f_prazo'), prazodesc: gv('f_prazodesc'), objeto: gv('f_objeto'), timeline: id ? (state.processos.find(x=>x.id===id)||{}).timeline||[] : [] };
+    if (!obj.num) { showNotif('Informe o número do processo.'); return; }
+    if (id) { const i = state.processos.findIndex(x=>x.id===id); state.processos[i]=obj; }
+    else state.processos.push(obj);
+  } else if (type === 'honorario') {
+    const obj = { id: id||uid(), desc: gv('f_desc'), clienteId: gv('f_hcliente'), valor: parseFloat(gv('f_valor'))||0, venc: gv('f_hvenc'), status: gv('f_hstatus'), obs: gv('f_hobs') };
+    if (!obj.desc) { showNotif('Informe a descrição.'); return; }
+    if (id) { const i = state.honorarios.findIndex(x=>x.id===id); state.honorarios[i]=obj; }
+    else state.honorarios.push(obj);
+  } else if (type === 'documento') {
+    const obj = { id: id||uid(), nome: gv('f_dnome'), clienteId: gv('f_dcliente'), processoId: gv('f_dprocesso'), tipo: gv('f_dtipo'), data: gv('f_ddata'), obs: gv('f_dobs'), pdfKey: window._pendingPdfKey||null, pdfName: window._pendingPdfName||null };
+    if (!obj.nome) { showNotif('Informe o nome do documento.'); return; }
+    state.documentos.push(obj);
+    window._pendingPdfKey = null;
+    window._pendingPdfName = null;
+  }
+  saveState();
+  closeModal();
+  renderAll();
+  showNotif('✅ Salvo com sucesso!');
+}
+
+function salvarTimeline(pid) {
+  const titulo = gv('f_tltitulo');
+  if (!titulo) { showNotif('Informe a movimentação.'); return; }
+  const p = state.processos.find(x=>x.id===pid);
+  if (!p) return;
+  if (!p.timeline) p.timeline = [];
+  p.timeline.unshift({ titulo, data: gv('f_tldata'), autor: gv('f_tlautor'), desc: gv('f_tldesc') });
+  saveState();
+  closeModal();
+  showNotif('📌 Movimentação adicionada!');
+}
+
+function excluir(type, id) {
+  if (!confirm('Confirmar exclusão?')) return;
+  if (type === 'cliente') state.clientes = state.clientes.filter(x=>x.id!==id);
+  if (type === 'processo') state.processos = state.processos.filter(x=>x.id!==id);
+  if (type === 'honorario') state.honorarios = state.honorarios.filter(x=>x.id!==id);
+  if (type === 'documento') state.documentos = state.documentos.filter(x=>x.id!==id);
+  saveState();
+  closeModal();
+  renderAll();
+  showNotif('🗑️ Excluído.');
+}
+
+// ── RENDERS ──
+function clienteNome(id) {
+  const c = state.clientes.find(x=>x.id===id);
+  return c ? c.nome : '—';
+}
+function diasParaPrazo(prazo) {
+  if (!prazo) return null;
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const d = new Date(prazo+'T00:00:00');
+  return Math.ceil((d-hoje)/(1000*60*60*24));
+}
+function prazoClass(dias) {
+  if (dias === null) return 'ok';
+  if (dias <= 3) return 'urgente';
+  if (dias <= 7) return 'atencao';
+  return 'ok';
+}
+function fmtData(d) {
+  if (!d) return '—';
+  const [y,m,dd] = d.split('-');
+  return `${dd}/${m}/${y}`;
+}
+function fmtVal(v) {
+  return 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:2});
+}
+
+function renderDashboard() {
+  // KPIs
+  const ativos = state.processos.filter(p=>p.status==='Ativo').length;
+  const urgentes = state.processos.filter(p=>{ const d=diasParaPrazo(p.prazo); return d!==null && d<=3; }).length;
+  const receber = state.honorarios.filter(h=>h.status==='Pendente').reduce((a,h)=>a+h.valor,0);
+  document.getElementById('kpi-processos').textContent = ativos;
+  document.getElementById('kpi-urgentes').textContent = urgentes;
+  document.getElementById('kpi-receber').textContent = fmtVal(receber);
+  document.getElementById('kpi-clientes').textContent = state.clientes.length;
+
+  // Prazos
+  const pEl = document.getElementById('dash-prazos');
+  const comPrazo = state.processos.filter(p=>p.prazo).sort((a,b)=>a.prazo.localeCompare(b.prazo)).slice(0,5);
+  if (!comPrazo.length) { pEl.innerHTML = '<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Nenhum prazo registrado</div></div>'; }
+  else {
+    pEl.innerHTML = comPrazo.map(p=>{
+      const dias = diasParaPrazo(p.prazo);
+      const cls = prazoClass(dias);
+      const label = dias===null?'—':dias===0?'Hoje':dias<0?`${Math.abs(dias)}d atrás`:`${dias}d`;
+      return `<div class="prazo-item" onclick="openModal('timeline','${p.id}')">
+        <div class="prazo-dot ${cls}"></div>
+        <div class="prazo-info">
+          <div class="prazo-desc">${p.prazodesc||'Prazo'}</div>
+          <div class="prazo-proc">${p.num} · ${clienteNome(p.clienteId)}</div>
+        </div>
+        <div class="prazo-dias ${cls}">${label}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Últimos clientes
+  const cEl = document.getElementById('dash-clientes');
+  const ultimos = [...state.clientes].reverse().slice(0,5);
+  if (!ultimos.length) { cEl.innerHTML = '<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">Nenhum cliente registrado</div></div>'; }
+  else {
+    cEl.innerHTML = ultimos.map(c=>`
+      <div class="prazo-item" onclick="openModal('cliente','${c.id}')">
+        <div style="width:32px;height:32px;background:var(--gold-dim);border:1px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;color:var(--gold);font-size:13px;flex-shrink:0">${c.nome.charAt(0)}</div>
+        <div class="prazo-info">
+          <div class="prazo-desc">${c.nome}</div>
+          <div class="prazo-proc">${c.cpf||c.email||'—'}</div>
+        </div>
+        <div style="font-size:11px;color:var(--text3)">${state.processos.filter(p=>p.clienteId===c.id).length} processo(s) vinculado(s)</div>
+      </div>`).join('');
+  }
+}
+
+function renderClientes() {
+  const q = (document.getElementById('searchCliente')||{}).value||'';
+  const list = state.clientes.filter(c=>c.nome.toLowerCase().includes(q.toLowerCase()));
+  const tb = document.getElementById('tb-clientes');
+  if (!list.length) { tb.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">👤</div><div class="empty-text">Nenhum cliente encontrado</div></div></td></tr>'; return; }
+  tb.innerHTML = list.map(c=>{
+    const nProc = state.processos.filter(p=>p.clienteId===c.id).length;
+    return `<tr>
+      <td class="highlight">${c.nome}</td>
+      <td>${c.cpf||'—'}</td>
+      <td>${c.tel||'—'}</td>
+      <td>${c.email||'—'}</td>
+      <td>${nProc}</td>
+      <td><button class="action-btn" onclick="openModal('cliente','${c.id}')">✎</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderProcessos() {
+  const q = (document.getElementById('searchProcesso')||{}).value||'';
+  const list = state.processos.filter(p=>p.num.toLowerCase().includes(q.toLowerCase())||clienteNome(p.clienteId).toLowerCase().includes(q.toLowerCase()));
+  const tb = document.getElementById('tb-processos');
+  if (!list.length) { tb.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">⚖️</div><div class="empty-text">Nenhum processo encontrado</div></div></td></tr>'; return; }
+  tb.innerHTML = list.map(p=>{
+    const dias = diasParaPrazo(p.prazo);
+    const cls = prazoClass(dias);
+    const label = dias===null?'—':dias===0?'Hoje':dias<0?`Venceu ${Math.abs(dias)}d atrás`:`${dias}d`;
+    const statusMap = { Ativo:'badge-ativo', Aguardando:'badge-aguardando', Arquivado:'badge-arquivado' };
+    return `<tr>
+      <td class="highlight" style="font-family:'DM Mono',monospace;font-size:12px">${p.num}</td>
+      <td>${clienteNome(p.clienteId)}</td>
+      <td>${p.tipo}</td>
+      <td><span class="prazo-dias ${cls}" style="display:inline-block">${fmtData(p.prazo)} ${p.prazo?'('+label+')':''}</span></td>
+      <td><span class="badge ${statusMap[p.status]||'badge-ativo'}">${p.status}</span></td>
+      <td style="display:flex;gap:4px">
+        <button class="action-btn" title="Timeline" onclick="openModal('timeline','${p.id}')">📋</button>
+        <button class="action-btn" onclick="openModal('processo','${p.id}')">✎</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderHonorarios() {
+  const q = (document.getElementById('searchHon')||{}).value||'';
+  const list = state.honorarios.filter(h=>h.desc.toLowerCase().includes(q.toLowerCase()));
+  const tb = document.getElementById('tb-honorarios');
+
+  const recebido = state.honorarios.filter(h=>h.status==='Pago').reduce((a,h)=>a+h.valor,0);
+  const pendente = state.honorarios.filter(h=>h.status==='Pendente').reduce((a,h)=>a+h.valor,0);
+  const vencido = state.honorarios.filter(h=>h.status==='Vencido').reduce((a,h)=>a+h.valor,0);
+  document.getElementById('fin-recebido').textContent = fmtVal(recebido);
+  document.getElementById('fin-pendente').textContent = fmtVal(pendente);
+  document.getElementById('fin-vencido').textContent = fmtVal(vencido);
+
+  if (!list.length) { tb.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">💰</div><div class="empty-text">Nenhum lançamento encontrado</div></div></td></tr>'; return; }
+  const statusMap = { Pago:'badge-pago', Pendente:'badge-pendente', Vencido:'badge-vencido' };
+  tb.innerHTML = list.map(h=>`<tr>
+    <td class="highlight">${h.desc}</td>
+    <td>${clienteNome(h.clienteId)}</td>
+    <td style="font-family:'DM Mono',monospace">${fmtVal(h.valor)}</td>
+    <td>${fmtData(h.venc)}</td>
+    <td><span class="badge ${statusMap[h.status]||'badge-pendente'}">${h.status}</span></td>
+    <td><button class="action-btn" onclick="openModal('honorario','${h.id}')">✎</button></td>
+  </tr>`).join('');
+}
+
+function renderDocs() {
+  const q = (document.getElementById('searchDoc')||{}).value||'';
+  const list = state.documentos.filter(d=>d.nome.toLowerCase().includes(q.toLowerCase()));
+  const el = document.getElementById('lista-docs');
+  const icones = { Procuração:'📜', Contrato:'📋', Petição:'✍️', Laudo:'🔬', Sentença:'⚖️', Recurso:'📤', Identidade:'🪪', CPF:'🪪', Outro:'📄' };
+  if (!list.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">📁</div><div class="empty-text">Nenhum documento encontrado</div></div>'; return; }
+  el.innerHTML = list.map(d=>`
+    <div class="doc-item">
+      <div class="doc-icon">${icones[d.tipo]||'📄'}</div>
+      <div style="flex:1">
+        <div class="doc-name">${d.nome}</div>
+        <div class="doc-meta">${d.tipo} · ${clienteNome(d.clienteId)} · ${fmtData(d.data)}${d.pdfKey?' · <span style="color:var(--green)">📎 PDF anexado</span>':''}</div>
+      </div>
+      <div style="display:flex;gap:4px;align-items:center">
+        ${d.pdfKey ? `<button class="action-btn" title="Abrir PDF" onclick="abrirPdf('${d.pdfKey}','${d.pdfName||d.nome}')">👁</button>
+        <button class="action-btn" title="Baixar PDF" onclick="baixarPdf('${d.pdfKey}','${d.pdfName||d.nome}')">⬇</button>` : ''}
+        <button class="action-btn" onclick="excluirDoc('${d.id}','${d.pdfKey||''}')">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+// ── PDF HELPERS ──
+let _pendingPdfData = null;
+window._pendingPdfKey = null;
+window._pendingPdfName = null;
+
+function handlePdfSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { showNotif('⚠️ Arquivo maior que 5 MB.'); return; }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const key = 'dominus_pdf_' + uid();
+    try {
+      localStorage.setItem(key, e.target.result);
+      window._pendingPdfKey = key;
+      window._pendingPdfName = file.name;
+      const zone = document.getElementById('uploadZone');
+      if (zone) {
+        zone.classList.add('has-file');
+        document.getElementById('uploadTxt').textContent = '✅ ' + file.name;
+      }
+    } catch(err) {
+      showNotif('⚠️ Sem espaço no navegador. Tente um PDF menor.');
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function abrirPdf(key, nome) {
+  const data = localStorage.getItem(key);
+  if (!data) { showNotif('PDF não encontrado.'); return; }
+  const win = window.open();
+  win.document.write(`<html><head><title>${nome}</title></head><body style="margin:0"><embed src="${data}" width="100%" height="100%" type="application/pdf"></body></html>`);
+}
+
+function baixarPdf(key, nome) {
+  const data = localStorage.getItem(key);
+  if (!data) { showNotif('PDF não encontrado.'); return; }
+  const a = document.createElement('a');
+  a.href = data;
+  a.download = nome.endsWith('.pdf') ? nome : nome + '.pdf';
+  a.click();
+}
+
+function excluirDoc(id, pdfKey) {
+  if (!confirm('Confirmar exclusão?')) return;
+  if (pdfKey) { try { localStorage.removeItem(pdfKey); } catch(e) {} }
+  state.documentos = state.documentos.filter(x=>x.id!==id);
+  saveState();
+  renderDocs();
+  showNotif('🗑️ Excluído.');
+}
+
+function renderAll() {
+  renderDashboard();
+  renderClientes();
+  renderProcessos();
+  renderHonorarios();
+  renderDocs();
+}
+
+// ── NOTIFICAÇÃO ──
+function showNotif(msg) {
+  const el = document.getElementById('notif');
+  document.getElementById('notifMsg').textContent = msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 3000);
+}
+
+// ── IA ──
+function getApiKey() { return localStorage.getItem('dominus_apikey') || 'proxy'; }
+
+async function enviarIA() {
+  const input = document.getElementById('iaInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  const msgs = document.getElementById('iaMsgs');
+  msgs.innerHTML += `<div class="ia-msg user">${msg}</div>`;
+  msgs.innerHTML += `<div class="ia-msg loading" id="iaLoading">✦ Consultando assistente jurídico...</div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+  document.getElementById('iaBtn').disabled = true;
+
+  try {
+    const cfg = JSON.parse(localStorage.getItem('dominus_config')||'{}');
+    const areas = cfg.areas || [];
+    const ctx = `Você é um assistente jurídico especializado em Direito brasileiro, atuando em: ${areas.length ? areas.join(', ') : 'diversas áreas'}.
+Responda de forma clara, objetiva e profissional.
+Contexto do escritório: ${state.processos.length} processos ativos.
+${getContextoJuridico(areas)}
+Sempre mencione quando o assunto requer análise de caso específico ou consulta à legislação atualizada.`;
+
+    const res = await fetch('https://dominus-proxy.durvalsimardi.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: ctx,
+        messages: [{ role: 'user', content: msg }]
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'Não foi possível obter resposta.';
+    document.getElementById('iaLoading').remove();
+    msgs.innerHTML += `<div class="ia-msg assistant">${reply.replace(/\n/g,'<br>')}</div>`;
+  } catch(e) {
+    document.getElementById('iaLoading').remove();
+    msgs.innerHTML += `<div class="ia-msg assistant" style="color:#e74c3c">Erro ao conectar com a IA. Verifique a chave da API.</div>`;
+  }
+  msgs.scrollTop = msgs.scrollHeight;
+  document.getElementById('iaBtn').disabled = false;
+}
+
+function iaQuick(txt) {
+  document.getElementById('iaInput').value = txt;
+  navigate('ia');
+  setTimeout(enviarIA, 100);
+}
+
+// ── CONFIGURAÇÕES ──
+function getContextoJuridico(areas) {
+  const base = {
+    civil: `DIREITO CIVIL: CC/2002 - prazos: prescrição geral 10 anos (art.205), reparação civil 3 anos (art.206 §3º III), cobrança 5 anos (art.206 §5º I). Contratos: formação, vícios, resolução. Responsabilidade civil: subjetiva (art.186) e objetiva (art.927 parágrafo único). Posse e propriedade: ações possessórias, usucapião (ordinária 10 anos art.1242, extraordinária 15 anos art.1238). Família: divórcio, guarda, alimentos, partilha. CPC/2015 aplicação subsidiária.`,
+    trabalhista: `DIREITO TRABALHISTA: CLT - prescrição 2 anos após término do contrato, 5 anos durante (art.7º XXIX CF). Verbas rescisórias: aviso prévio, FGTS+40%, férias+1/3, 13º proporcional. Horas extras: adicional mínimo 50% (art.7º XVI CF). Adicional noturno 20% (art.73 CLT). Intervalo intrajornada (art.71 CLT). NR regulamentadoras para insalubridade/periculosidade. Reforma trabalhista Lei 13.467/2017. Processo: CLT arts.840-910, prazos: contestação 5 dias úteis, recurso ordinário 8 dias.`,
+    criminal: `DIREITO CRIMINAL: CP - causas extinção punibilidade (art.107): prescrição, anistia, perdão. Prescrição: calculada pela pena máxima (art.109 CP). Excludentes ilicitude: legítima defesa (art.25), estado necessidade (art.24), estrito cumprimento dever legal. CPP - prisão: flagrante (art.302), preventiva (art.312), temporária (Lei 7960/89). Habeas corpus (art.647 CPP). Inquérito policial prazo: 10 dias preso, 30 dias solto. Ação penal pública: denúncia 5 dias preso, 15 dias solto.`,
+    familia: `DIREITO DE FAMÍLIA: CC/2002 arts.1511-1783. Divórcio: direto (EC 66/2010, sem prazo). Guarda: compartilhada regra geral (art.1583 §2º). Alimentos: binômio necessidade/possibilidade (art.1694). Revisional: mudança fortuna (art.1699). Regime bens: comunhão parcial (padrão), total, separação, participação final aquestos. Inventário: prazo 2 meses da abertura sucessão. Meação x herança. Ação de alimentos: rito especial Lei 5478/68, prisão civil inadimplente.`,
+    tributario: `DIREITO TRIBUTÁRIO: CTN - lançamento (art.142), decadência 5 anos (art.173), prescrição 5 anos (art.174). Impostos federais: IR, IPI, IOF, ITR. Estaduais: ICMS, IPVA, ITCMD. Municipais: ISS, IPTU, ITBI. Imunidades (art.150 CF). Isenções x não-incidência. Execução fiscal: Lei 6830/80, embargos 30 dias. CARF recurso administrativo. Parcelamentos: REFIS, PERT. Responsabilidade tributária (art.128-138 CTN).`,
+    administrativo: `DIREITO ADMINISTRATIVO: Lei 8112/90 (estatuto federal), Lei 9784/99 (processo administrativo), Lei 8666/93 e 14133/21 (licitações), Lei 8429/92 (improbidade). Mandado segurança: prazo 120 dias (Lei 12016/09). Ação popular (Lei 4717/65). Ação civil pública (Lei 7347/85). Poderes da administração: vinculado, discricionário, hierárquico, disciplinar, regulamentar, de polícia. Princípios: LIMPE (legalidade, impessoalidade, moralidade, publicidade, eficiência art.37 CF).`,
+    previdenciario: `DIREITO PREVIDENCIÁRIO: Lei 8212/91 e 8213/91. Benefícios: aposentadoria por incapacidade (antiga invalidez), programada (idade+contribuição), especial. Auxílio-doença/acidente. Salário-maternidade, família. BPC/LOAS (Lei 8742/93): deficiente ou idoso 65+ renda per capita 1/4 SM. Carência: 12 contribuições mínimo. Reforma previdenciária EC 103/2019: idade mínima 65H/62M, 20 anos contribuição. Revisão benefício: decadencial 10 anos. INSS: mandado segurança, ação ordinária, JEF (até 60 SM).`,
+    consumidor: `DIREITO DO CONSUMIDOR: CDC Lei 8078/90. Responsabilidade fornecedor: objetiva (art.12-14). Vícios produto: 30 dias não duráveis, 90 dias duráveis (art.26). Fato produto: prescrição 5 anos (art.27). Inversão ônus prova (art.6º VIII). Práticas abusivas (art.39). Contratos: cláusulas abusivas nulas (art.51). Serviços bancários: CDC aplica (Súmula 297 STJ). Planos saúde: negativa cobertura (ANS). PROCON: reclamação administrativa. Dano moral in re ipsa em diversas situações.`,
+  };
+  if (!areas.length) return 'Atue como especialista generalista em direito brasileiro, citando os diplomas legais relevantes.';
+  return areas.filter(a => base[a]).map(a => base[a]).join(' ');
+}
+
+function carregarConfig() {
+  const cfg = JSON.parse(localStorage.getItem('dominus_config')||'{}');
+  setVal('cfg_nome', cfg.nome||'');
+  setVal('cfg_adv', cfg.adv||'');
+  setVal('cfg_oab', cfg.oab||'');
+  setVal('cfg_tel', cfg.tel||'');
+  // Carrega áreas selecionadas
+  const areas = cfg.areas || [];
+  document.querySelectorAll('.area-toggle').forEach(el => {
+    const area = el.dataset.area;
+    if (areas.includes(area)) {
+      el.classList.add('selected');
+      el.querySelector('input').checked = true;
+    }
+  });
+  // Atualiza nome na sidebar
+  if (cfg.adv) document.querySelector('.user-name').textContent = cfg.adv;
+  if (cfg.nome) document.querySelector('.user-role').textContent = cfg.nome;
+}
+
+function toggleArea(el) {
+  const cb = el.querySelector('input');
+  cb.checked = !cb.checked;
+  el.classList.toggle('selected', cb.checked);
+}
+
+function setVal(id, val) { const el = document.getElementById(id); if (el) el.value = val; }
+
+function salvarConfig() {
+  const cfg = {
+    nome: document.getElementById('cfg_nome').value.trim(),
+    adv: document.getElementById('cfg_adv').value.trim(),
+    oab: document.getElementById('cfg_oab').value.trim(),
+    tel: document.getElementById('cfg_tel').value.trim(),
+  };
+  // Salva áreas selecionadas
+  cfg.areas = Array.from(document.querySelectorAll('.area-toggle input:checked')).map(el => el.value);
+  // Toggle visual das áreas
+  document.querySelectorAll('.area-toggle').forEach(el => {
+    el.classList.toggle('selected', el.querySelector('input').checked);
+  });
+  localStorage.setItem('dominus_config', JSON.stringify(cfg));
+  // Atualiza sidebar
+  if (cfg.adv) document.querySelector('.user-name').textContent = cfg.adv;
+  if (cfg.nome) document.querySelector('.user-role').textContent = cfg.nome;
+  showNotif('✅ Configurações salvas!');
+}
+
+async function testarIA() {
+  const statusEl = document.getElementById('cfg_status');
+  statusEl.style.display = 'block';
+  statusEl.style.background = 'var(--bg4)';
+  statusEl.style.color = 'var(--text3)';
+  statusEl.textContent = '🔄 Testando conexão...';
+  try {
+    const res = await fetch('https://dominus-proxy.durvalsimardi.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 20, messages: [{ role: 'user', content: 'Responda apenas: OK' }] })
+    });
+    const data = await res.json();
+    if (data.content?.[0]?.text) {
+      statusEl.style.background = 'var(--green-dim)';
+      statusEl.style.color = 'var(--green)';
+      statusEl.textContent = '✅ Conexão funcionando! IA pronta para uso.';
+    } else {
+      throw new Error(data.error?.message || 'Resposta inesperada');
+    }
+  } catch(e) {
+    statusEl.style.background = 'var(--red-dim)';
+    statusEl.style.color = '#e74c3c';
+    statusEl.textContent = '❌ Erro: ' + (e.message || 'Chave inválida ou sem créditos.');
+  }
+}
+
+// ── WELCOME POPUP ──
+const frases = [
+  { txt: '"A justiça atrasada não é justiça, senão injustiça qualificada."', autor: '— Rui Barbosa' },
+  { txt: '"O advogado é indispensável à administração da justiça."', autor: '— Art. 133, CF/88' },
+  { txt: '"Não há liberdade sem lei, nem lei sem justiça."', autor: '— Montesquieu' },
+  { txt: '"O direito é a arte do bom e do justo."', autor: '— Celso, jurista romano' },
+  { txt: '"A lei é a razão livre das paixões."', autor: '— Aristóteles' },
+  { txt: '"Conheça todas as teorias, domine todas as técnicas, mas ao tocar uma alma humana, seja apenas outra alma humana."', autor: '— Carl Jung' },
+  { txt: '"O sucesso é a soma de pequenos esforços repetidos dia após dia."', autor: '— Robert Collier' },
+  { txt: '"Que a sua prática seja tão grande quanto o seu propósito."', autor: '— Dominus' },
+];
+
+function mostrarWelcome() {
+  const frase = frases[Math.floor(Math.random() * frases.length)];
+  document.getElementById('welcomeFrase').textContent = frase.txt;
+  document.getElementById('welcomeAutor').textContent = frase.autor;
+
+  // Data formatada
+  const hoje = new Date();
+  const diasSemana = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+  const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  document.getElementById('welcomeDate').textContent =
+    `${diasSemana[hoje.getDay()]}, ${hoje.getDate()} de ${meses[hoje.getMonth()]} de ${hoje.getFullYear()}`;
+
+  // Prazos próximos (até 10 dias)
+  const comPrazo = state.processos
+    .filter(p => p.prazo)
+    .map(p => ({ ...p, dias: diasParaPrazo(p.prazo) }))
+    .filter(p => p.dias !== null && p.dias <= 10)
+    .sort((a, b) => a.dias - b.dias)
+    .slice(0, 5);
+
+  const el = document.getElementById('welcomePrazos');
+  if (!comPrazo.length) {
+    el.innerHTML = '<div class="welcome-empty">✅ Nenhum prazo urgente nos próximos 10 dias.</div>';
+  } else {
+    el.innerHTML = comPrazo.map(p => {
+      let cls, label;
+      if (p.dias <= 0) { cls = 'hoje'; label = p.dias === 0 ? 'HOJE' : `${Math.abs(p.dias)}d atrás`; }
+      else if (p.dias <= 3) { cls = 'urgente'; label = p.dias === 1 ? 'Amanhã' : `${p.dias} dias`; }
+      else if (p.dias <= 7) { cls = 'atencao'; label = `${p.dias} dias`; }
+      else { cls = 'ok'; label = `${p.dias} dias`; }
+      return `<div class="welcome-prazo-item" onclick="fecharWelcome();navigate('processos');setTimeout(()=>openModal('timeline','${p.id}'),100)">
+        <div class="welcome-prazo-badge ${cls}">${label}</div>
+        <div class="welcome-prazo-info">
+          <div class="welcome-prazo-desc">${p.prazodesc || 'Prazo processual'}</div>
+          <div class="welcome-prazo-proc">${p.num} · ${clienteNome(p.clienteId)}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('welcomeOverlay').style.display = 'flex';
+}
+
+function fecharWelcome() {
+  const el = document.getElementById('welcomeOverlay');
+  el.style.opacity = '0';
+  el.style.transition = 'opacity 0.3s';
+  setTimeout(() => el.style.display = 'none', 300);
+}
+
+// ── INIT ──
+loadState();
+renderAll();
+
+// Adicionar dados demo se vazio
+if (!state.clientes.length) {
+  state.clientes = [
+    { id: uid(), nome: 'Maria Aparecida Santos', cpf: '123.456.789-00', tel: '(44) 99123-4567', email: 'maria@email.com', end: 'Rua das Flores, 123 - Maringá/PR', obs: '' },
+    { id: uid(), nome: 'João Carlos Oliveira', cpf: '987.654.321-00', tel: '(44) 98765-4321', email: 'joao@empresa.com', end: 'Av. Brasil, 456 - Londrina/PR', obs: 'Cliente desde 2022' },
+  ];
+  const c1 = state.clientes[0].id, c2 = state.clientes[1].id;
+  state.processos = [
+    { id: uid(), num: '0001234-56.2024.8.16.0001', clienteId: c1, tipo: 'Trabalhista', status: 'Ativo', prazo: new Date(Date.now()+2*86400000).toISOString().slice(0,10), prazodesc: 'Apresentar contestação', objeto: 'Ação trabalhista - horas extras', timeline: [{titulo:'Petição inicial protocolada', data:'2024-01-15', autor:'Dr. Rafael', desc:''}] },
+    { id: uid(), num: '0005678-90.2024.8.16.0002', clienteId: c2, tipo: 'Cível', status: 'Ativo', prazo: new Date(Date.now()+8*86400000).toISOString().slice(0,10), prazodesc: 'Recurso de apelação', objeto: 'Cobrança de dívida', timeline: [] },
+    { id: uid(), num: '0009999-11.2023.8.16.0003', clienteId: c1, tipo: 'Família', status: 'Aguardando', prazo: '', prazodesc: '', objeto: 'Inventário', timeline: [] },
+  ];
+  state.honorarios = [
+    { id: uid(), desc: 'Honorários – Ação trabalhista', clienteId: c1, valor: 3500, venc: new Date(Date.now()+15*86400000).toISOString().slice(0,10), status: 'Pendente', obs: '' },
+    { id: uid(), desc: 'Honorários – Ação de cobrança (entrada)', clienteId: c2, valor: 1500, venc: new Date(Date.now()-5*86400000).toISOString().slice(0,10), status: 'Pago', obs: '' },
+    { id: uid(), desc: 'Honorários – Inventário (parcela 1)', clienteId: c1, valor: 2000, venc: new Date(Date.now()-10*86400000).toISOString().slice(0,10), status: 'Vencido', obs: '' },
+  ];
+  state.documentos = [
+    { id: uid(), nome: 'Procuração Ad Judicia', clienteId: c1, processoId: '', tipo: 'Procuração', data: '2024-01-10', obs: 'Assinada com firma reconhecida' },
+    { id: uid(), nome: 'Carteira de Trabalho', clienteId: c1, processoId: '', tipo: 'Outro', data: '2024-01-10', obs: '' },
+  ];
+  saveState();
+  renderAll();
+}
+
+// Mostrar popup de boas-vindas após carregar tudo
+setTimeout(mostrarWelcome, 500);
+</script>
+</body>
+</html>
