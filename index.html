@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LexDesk — Gestão Jurídica</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e10;
+    --bg2: #141416;
+    --bg3: #1a1a1e;
+    --bg4: #222228;
+    --border: #2a2a32;
+    --gold: #c9a84c;
+    --gold2: #e8c97a;
+    --gold-dim: rgba(201,168,76,0.12);
+    --gold-dim2: rgba(201,168,76,0.06);
+    --text: #f0ede8;
+    --text2: #a09a90;
+    --text3: #6a6460;
+    --red: #c0392b;
+    --red-dim: rgba(192,57,43,0.15);
+    --green: #27ae60;
+    --green-dim: rgba(39,174,96,0.15);
+    --blue: #2980b9;
+    --blue-dim: rgba(41,128,185,0.15);
+    --amber: #e67e22;
+    --amber-dim: rgba(230,126,34,0.15);
+    --radius: 10px;
+    --sidebar: 240px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: var(--sidebar);
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+  }
+  .logo {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-mark {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.02em;
+  }
+  .logo-sub {
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .nav { flex: 1; padding: 16px 0; }
+  .nav-section {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 12px 24px 6px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 24px;
+    cursor: pointer;
+    color: var(--text2);
+    transition: all 0.15s;
+    position: relative;
+    font-size: 13.5px;
+    font-weight: 400;
+  }
+  .nav-item:hover { color: var(--text); background: var(--bg3); }
+  .nav-item.active {
+    color: var(--gold);
+    background: var(--gold-dim);
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 4px; bottom: 4px;
+    width: 3px;
+    background: var(--gold);
+    border-radius: 0 3px 3px 0;
+  }
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--red);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 20px;
+  }
+  .user-area {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .user-avatar {
+    width: 34px; height: 34px;
+    background: var(--gold-dim);
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+  .user-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .user-role { font-size: 11px; color: var(--text3); }
+
+  /* MAIN */
+  .main {
+    margin-left: var(--sidebar);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  .topbar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .topbar-actions { display: flex; gap: 10px; align-items: center; }
+  .btn {
+    padding: 8px 16px;
+    border-radius: 7px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .btn-primary {
+    background: var(--gold);
+    color: #0e0e10;
+  }
+  .btn-primary:hover { background: var(--gold2); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--bg3); color: var(--text); }
+  .btn-danger {
+    background: var(--red-dim);
+    color: #e74c3c;
+    border: 1px solid rgba(192,57,43,0.3);
+  }
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+  .content { padding: 28px 32px; flex: 1; }
+
+  /* PANELS */
+  .panel-grid { display: none; }
+  .panel-grid.active { display: block; }
+
+  /* DASHBOARD */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .kpi {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .kpi { transition: transform 0.15s, box-shadow 0.15s; }
+  .kpi[onclick]:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+  .kpi.gold::before { background: var(--gold); }
+  .kpi.red::before { background: var(--red); }
+  .kpi.green::before { background: var(--green); }
+  .kpi.blue::before { background: var(--blue); }
+  .kpi-label { font-size: 11px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; }
+  .kpi-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    font-weight: 700;
+    margin: 6px 0 2px;
+    line-height: 1;
+  }
+  .kpi.gold .kpi-value { color: var(--gold); }
+  .kpi.red .kpi-value { color: #e74c3c; }
+  .kpi.green .kpi-value { color: var(--green); }
+  .kpi.blue .kpi-value { color: var(--blue); }
+  .kpi-sub { font-size: 11px; color: var(--text3); }
+
+  .dash-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+  .card-body { padding: 4px 0; }
+
+  .prazo-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 20px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+    cursor: pointer;
+  }
+  .prazo-item:last-child { border-bottom: none; }
+  .prazo-item:hover { background: var(--bg3); }
+  .prazo-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .prazo-dot.urgente { background: var(--red); }
+  .prazo-dot.atencao { background: var(--amber); }
+  .prazo-dot.ok { background: var(--green); }
+  .prazo-info { flex: 1; min-width: 0; }
+  .prazo-desc { font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .prazo-proc { font-size: 11px; color: var(--text3); }
+  .prazo-dias {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 5px;
+    flex-shrink: 0;
+  }
+  .prazo-dias.urgente { background: var(--red-dim); color: #e74c3c; }
+  .prazo-dias.atencao { background: var(--amber-dim); color: var(--amber); }
+  .prazo-dias.ok { background: var(--green-dim); color: var(--green); }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left;
+    padding: 10px 16px;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    border-bottom: 1px solid var(--border);
+    font-weight: 500;
+  }
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text2);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg3); }
+  td.highlight { color: var(--text); font-weight: 500; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .badge-ativo { background: var(--green-dim); color: var(--green); }
+  .badge-arquivado { background: var(--bg4); color: var(--text3); }
+  .badge-aguardando { background: var(--amber-dim); color: var(--amber); }
+  .badge-pago { background: var(--green-dim); color: var(--green); }
+  .badge-pendente { background: var(--amber-dim); color: var(--amber); }
+  .badge-vencido { background: var(--red-dim); color: #e74c3c; }
+
+  .action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text3);
+    font-size: 16px;
+    padding: 4px 6px;
+    border-radius: 5px;
+    transition: all 0.1s;
+  }
+  .action-btn:hover { background: var(--bg4); color: var(--text); }
+
+  /* TIMELINE */
+  .timeline { padding: 16px 20px; }
+  .tl-item {
+    display: flex;
+    gap: 14px;
+    padding-bottom: 20px;
+    position: relative;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 28px;
+    bottom: 0;
+    width: 1px;
+    background: var(--border);
+  }
+  .tl-item:last-child::before { display: none; }
+  .tl-dot {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--bg4);
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .tl-dot.gold { border-color: var(--gold); background: var(--gold-dim); }
+  .tl-body { flex: 1; padding-top: 4px; }
+  .tl-title { font-size: 13px; color: var(--text); font-weight: 500; }
+  .tl-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    width: 560px;
+    max-width: 95vw;
+    max-height: 85vh;
+    overflow-y: auto;
+    transform: translateY(20px);
+    transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--text);
+  }
+  .modal-close {
+    background: none; border: none; cursor: pointer;
+    color: var(--text3); font-size: 20px;
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.1s;
+  }
+  .modal-close:hover { background: var(--bg4); color: var(--text); }
+  .modal-body { padding: 20px 24px; }
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: flex-end; gap: 10px;
+  }
+
+  /* FORM */
+  .form-group { margin-bottom: 16px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  label { display: block; font-size: 11px; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+  input, select, textarea {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--gold); }
+  textarea { resize: vertical; min-height: 80px; }
+  select option { background: var(--bg3); }
+
+  /* IA CHAT */
+  .ia-area {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-top: 16px;
+  }
+  .ia-header {
+    padding: 12px 16px;
+    background: var(--gold-dim2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--gold);
+    font-weight: 600; letter-spacing: 0.05em;
+  }
+  .ia-messages {
+    padding: 14px 16px;
+    min-height: 120px;
+    max-height: 260px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .ia-msg {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+    max-width: 90%;
+  }
+  .ia-msg.user {
+    background: var(--gold-dim);
+    color: var(--text);
+    align-self: flex-end;
+    border: 1px solid rgba(201,168,76,0.2);
+  }
+  .ia-msg.assistant {
+    background: var(--bg4);
+    color: var(--text2);
+    align-self: flex-start;
+    border: 1px solid var(--border);
+  }
+  .ia-msg.loading { color: var(--text3); font-style: italic; }
+  .ia-input-row {
+    padding: 10px 12px;
+    border-top: 1px solid var(--border);
+    display: flex; gap: 8px;
+  }
+  .ia-input-row input { flex: 1; }
+  .ia-send {
+    background: var(--gold);
+    color: #0e0e10;
+    border: none;
+    border-radius: 7px;
+    padding: 9px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  .ia-send:hover { background: var(--gold2); }
+  .ia-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* SEARCH BAR */
+  .search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+    align-items: center;
+  }
+  .search-bar input { max-width: 280px; }
+
+  /* FINANCEIRO */
+  .fin-total {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  /* DOCS */
+  .doc-list { padding: 8px 0; }
+  .doc-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .doc-item:hover { background: var(--bg3); }
+  .doc-item:last-child { border-bottom: none; }
+  .doc-icon {
+    font-size: 20px;
+    width: 36px; height: 36px;
+    background: var(--bg4);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .doc-name { font-size: 13px; color: var(--text); font-weight: 500; }
+  .doc-meta { font-size: 11px; color: var(--text3); }
+
+  /* UPLOAD ZONE */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    padding: 18px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--bg3);
+  }
+  .upload-zone:hover { border-color: var(--gold); background: var(--gold-dim2); }
+  .upload-zone.has-file { border-color: var(--green); background: var(--green-dim); }
+  .upload-icon { font-size: 22px; margin-bottom: 4px; }
+  .upload-txt { font-size: 13px; color: var(--text2); }
+  .upload-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text3);
+  }
+  .empty-icon { font-size: 36px; margin-bottom: 10px; }
+  .empty-text { font-size: 13px; }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+  /* NOTIFICATION */
+  .notif {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--bg2);
+    border: 1px solid var(--gold);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--text);
+    z-index: 500;
+    max-width: 300px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+  .notif.show { opacity: 1; transform: translateY(0); }
+  .notif-title { font-weight: 600; color: var(--gold); margin-bottom: 3px; font-size: 12px; }
+
+  /* WELCOME POPUP */
+  .welcome-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(4px);
+    z-index: 300;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    animation: fadeInOverlay 0.4s ease 0.3s forwards;
+  }
+  @keyframes fadeInOverlay { to { opacity: 1; } }
+  .welcome-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 520px;
+    max-width: 95vw;
+    overflow: hidden;
+    transform: translateY(24px);
+    animation: slideUp 0.4s ease 0.3s forwards;
+  }
+  @keyframes slideUp { to { transform: translateY(0); } }
+  .welcome-header {
+    background: linear-gradient(135deg, #1a1608 0%, #0e0e10 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 28px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .welcome-header::before {
+    content: '⚖';
+    position: absolute;
+    right: 24px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 72px;
+    opacity: 0.06;
+    line-height: 1;
+  }
+  .welcome-greeting {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .welcome-frase {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--text);
+    line-height: 1.5;
+    font-style: italic;
+  }
+  .welcome-frase-autor {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 8px;
+    letter-spacing: 0.05em;
+  }
+  .welcome-body { padding: 20px 28px; }
+  .welcome-section-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .welcome-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .welcome-prazo-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .welcome-prazo-item:hover { border-color: var(--gold); }
+  .welcome-prazo-item:last-child { margin-bottom: 0; }
+  .welcome-prazo-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    font-weight: 500;
+  }
+  .welcome-prazo-badge.hoje { background: var(--red-dim); color: #e74c3c; }
+  .welcome-prazo-badge.urgente { background: var(--red-dim); color: #e74c3c; }
+  .welcome-prazo-badge.atencao { background: var(--amber-dim); color: var(--amber); }
+  .welcome-prazo-badge.ok { background: var(--green-dim); color: var(--green); }
+  .welcome-prazo-info { flex: 1; min-width: 0; }
+  .welcome-prazo-desc { font-size: 13px; color: var(--text); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .welcome-prazo-proc { font-size: 11px; color: var(--text3); margin-top: 1px; }
+  .welcome-empty {
+    text-align: center;
+    padding: 20px;
+    color: var(--text3);
+    font-size: 13px;
+  }
+  .welcome-footer {
+    padding: 16px 28px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .welcome-date { font-size: 12px; color: var(--text3); }
+  .welcome-close-btn {
+    background: var(--gold);
+    color: #0e0e10;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 22px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .welcome-close-btn:hover { background: var(--gold2); }
+
+  /* SCROLL */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  .full-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">LexDesk</div>
+    <div class="logo-sub">Gestão Jurídica</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Principal</div>
+    <div class="nav-item active" onclick="navigate('dashboard')">
+      <span class="nav-icon">◈</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="navigate('clientes')">
+      <span class="nav-icon">◉</span> Clientes
+    </div>
+    <div class="nav-item" onclick="navigate('processos')">
+      <span class="nav-icon">◎</span> Processos
+    </div>
+    <div class="nav-section">Financeiro</div>
+    <div class="nav-item" onclick="navigate('honorarios')">
+      <span class="nav-icon">◇</span> Honorários
+    </div>
+    <div class="nav-section">Ferramentas</div>
+    <div class="nav-item" onclick="navigate('documentos')">
+      <span class="nav-icon">◻</span> Documentos
+    </div>
+    <div class="nav-item" onclick="navigate('ia')">
+      <span class="nav-icon">✦</span> Assistente IA
+    </div>
+    <div class="nav-item" onclick="navigate('config')">
+      <span class="nav-icon">⚙</span> Configurações
+    </div>
+  </nav>
+  <div class="user-area">
+    <div class="user-avatar">DR</div>
+    <div>
+      <div class="user-name">Dr. Rafael</div>
+      <div class="user-role">Advogado titular</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="page-title" id="pageTitle">Dashboard</div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm" onclick="showNotif('🔔 Sem novos alertas no momento.')">🔔</button>
+      <button class="btn btn-primary btn-sm" id="topAction" onclick="openModal('processo')">+ Novo Processo</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="panel-grid active" id="panel-dashboard">
+      <div class="kpi-row">
+        <div class="kpi gold" onclick="navigate('processos')" style="cursor:pointer" title="Ver processos">
+          <div class="kpi-label">Processos Ativos</div>
+          <div class="kpi-value" id="kpi-processos">0</div>
+          <div class="kpi-sub">em andamento ↗</div>
+        </div>
+        <div class="kpi red" onclick="navigate('processos')" style="cursor:pointer" title="Ver prazos urgentes">
+          <div class="kpi-label">Prazos Urgentes</div>
+          <div class="kpi-value" id="kpi-urgentes">0</div>
+          <div class="kpi-sub">próximos 3 dias ↗</div>
+        </div>
+        <div class="kpi green" onclick="navigate('honorarios')" style="cursor:pointer" title="Ver honorários">
+          <div class="kpi-label">A Receber</div>
+          <div class="kpi-value" id="kpi-receber">R$ 0</div>
+          <div class="kpi-sub">honorários pendentes ↗</div>
+        </div>
+        <div class="kpi blue" onclick="navigate('clientes')" style="cursor:pointer" title="Ver clientes">
+          <div class="kpi-label">Clientes</div>
+          <div class="kpi-value" id="kpi-clientes">0</div>
+          <div class="kpi-sub">cadastrados ↗</div>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Prazos Próximos</span>
+            <button class="btn btn-ghost btn-sm" onclick="navigate('processos')">Ver todos</button>
+          </div>
+          <div class="card-body" id="dash-prazos">
+            <div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Nenhum prazo cadastrado</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Últimos Clientes</span>
+            <button class="btn btn-ghost btn-sm" onclick="navigate('clientes')">Ver todos</button>
+          </div>
+          <div class="card-body" id="dash-clientes">
+            <div class="empty"><div class="empty-icon">👤</div><div class="empty-text">Nenhum cliente cadastrado</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENTES -->
+    <div class="panel-grid" id="panel-clientes">
+      <div class="search-bar">
+        <input type="text" placeholder="Buscar cliente..." id="searchCliente" oninput="renderClientes()">
+        <button class="btn btn-primary btn-sm" onclick="openModal('cliente')">+ Novo Cliente</button>
+      </div>
+      <div class="full-card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th><th>CPF/CNPJ</th><th>Telefone</th><th>Email</th><th>Processos</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="tb-clientes">
+              <tr><td colspan="6"><div class="empty"><div class="empty-icon">👤</div><div class="empty-text">Nenhum cliente cadastrado</div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROCESSOS -->
+    <div class="panel-grid" id="panel-processos">
+      <div class="search-bar">
+        <input type="text" placeholder="Buscar processo..." id="searchProcesso" oninput="renderProcessos()">
+        <button class="btn btn-primary btn-sm" onclick="openModal('processo')">+ Novo Processo</button>
+      </div>
+      <div class="full-card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nº Processo</th><th>Cliente</th><th>Tipo</th><th>Próximo Prazo</th><th>Status</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="tb-processos">
+              <tr><td colspan="6"><div class="empty"><div class="empty-icon">⚖️</div><div class="empty-text">Nenhum processo cadastrado</div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- HONORÁRIOS -->
+    <div class="panel-grid" id="panel-honorarios">
+      <div class="fin-total">
+        <div class="kpi green">
+          <div class="kpi-label">Total Recebido</div>
+          <div class="kpi-value" style="font-size:22px" id="fin-recebido">R$ 0</div>
+        </div>
+        <div class="kpi amber" style="--amber: #e67e22;">
+          <div class="kpi-label">Pendente</div>
+          <div class="kpi-value" style="font-size:22px;color:var(--amber)" id="fin-pendente">R$ 0</div>
+        </div>
+        <div class="kpi red">
+          <div class="kpi-label">Vencido</div>
+          <div class="kpi-value" style="font-size:22px" id="fin-vencido">R$ 0</div>
+        </div>
+      </div>
+      <div class="search-bar">
+        <input type="text" placeholder="Buscar..." id="searchHon" oninput="renderHonorarios()">
+        <button class="btn btn-primary btn-sm" onclick="openModal('honorario')">+ Novo Lançamento</button>
+      </div>
+      <div class="full-card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Descrição</th><th>Cliente</th><th>Valor</th><th>Vencimento</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody id="tb-honorarios">
+              <tr><td colspan="6"><div class="empty"><div class="empty-icon">💰</div><div class="empty-text">Nenhum lançamento registrado</div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOCUMENTOS -->
+    <div class="panel-grid" id="panel-documentos">
+      <div class="search-bar">
+        <input type="text" placeholder="Buscar documento..." id="searchDoc" oninput="renderDocs()">
+        <button class="btn btn-primary btn-sm" onclick="openModal('documento')">+ Novo Documento</button>
+      </div>
+      <div class="full-card">
+        <div class="doc-list" id="lista-docs">
+          <div class="empty"><div class="empty-icon">📁</div><div class="empty-text">Nenhum documento cadastrado</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ASSISTENTE IA -->
+    <div class="panel-grid" id="panel-ia">
+      <div class="card" style="max-width:720px">
+        <div class="card-header">
+          <span class="card-title">✦ Assistente Jurídico com IA</span>
+        </div>
+        <div style="padding:16px 20px">
+          <p style="color:var(--text2);font-size:13px;margin-bottom:14px">Pergunte sobre prazos, solicite minutas, tire dúvidas processuais ou peça análises do seu caso.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+            <button class="btn btn-ghost btn-sm" onclick="iaQuick('Quais são os prazos para recurso de apelação?')">📋 Prazo de apelação</button>
+            <button class="btn btn-ghost btn-sm" onclick="iaQuick('Gere uma minuta de petição inicial para ação de cobrança')">✍️ Petição inicial</button>
+            <button class="btn btn-ghost btn-sm" onclick="iaQuick('Quais documentos preciso para ajuizar ação trabalhista?')">📄 Docs trabalhistas</button>
+          </div>
+          <div class="ia-area">
+            <div class="ia-header">✦ LexDesk IA — Assistente Jurídico</div>
+            <div class="ia-messages" id="iaMsgs">
+              <div class="ia-msg assistant">Olá! Sou seu assistente jurídico com IA. Posso ajudar com prazos processuais, minutas, checklist de documentos e dúvidas do dia a dia. Como posso ajudar?</div>
+            </div>
+            <div class="ia-input-row">
+              <input type="text" id="iaInput" placeholder="Digite sua pergunta jurídica..." onkeydown="if(event.key==='Enter') enviarIA()">
+              <button class="ia-send" id="iaBtn" onclick="enviarIA()">▶</button>
+            </div>
+          </div>
+          <p style="font-size:11px;color:var(--text3);margin-top:10px">⚠️ As respostas da IA são orientativas. Sempre valide com sua análise profissional.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIGURAÇÕES -->
+    <div class="panel-grid" id="panel-config">
+      <div class="card" style="max-width:620px">
+        <div class="card-header">
+          <span class="card-title">⚙ Configurações do Escritório</span>
+        </div>
+        <div style="padding:20px 24px">
+
+          <div style="margin-bottom:28px">
+            <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;font-weight:600">Identidade</div>
+            <div class="form-row">
+              <div class="form-group"><label>Nome do Escritório</label><input id="cfg_nome" placeholder="Ex: Oliveira & Associados"></div>
+              <div class="form-group"><label>Nome do Advogado</label><input id="cfg_adv" placeholder="Dr. Rafael Oliveira"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>OAB</label><input id="cfg_oab" placeholder="Ex: OAB/PR 12.345"></div>
+              <div class="form-group"><label>Telefone</label><input id="cfg_tel" placeholder="(44) 99999-0000"></div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:28px">
+            <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;font-weight:600">Assistente IA</div>
+            <div class="form-group">
+              <label>Chave da API Anthropic</label>
+              <div style="display:flex;gap:8px">
+                <input id="cfg_apikey" type="password" placeholder="sk-ant-api03-..." style="flex:1">
+                <button class="btn btn-ghost btn-sm" onclick="toggleApiKey()" id="btnToggleKey" style="flex-shrink:0">👁</button>
+              </div>
+              <div style="font-size:11px;color:var(--text3);margin-top:6px">Obtida em <strong style="color:var(--text2)">console.anthropic.com</strong> → API Keys. Fica salva apenas neste navegador.</div>
+            </div>
+            <div id="cfg_status" style="display:none;padding:10px 14px;border-radius:8px;font-size:12px;margin-top:8px"></div>
+            <button class="btn btn-ghost btn-sm" onclick="testarIA()" style="margin-top:8px">🔌 Testar conexão com IA</button>
+          </div>
+
+          <div style="padding-top:16px;border-top:1px solid var(--border);display:flex;justify-content:flex-end">
+            <button class="btn btn-primary" onclick="salvarConfig()">Salvar configurações</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<!-- MODAIS -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Novo</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<!-- WELCOME POPUP -->
+<div class="welcome-overlay" id="welcomeOverlay">
+  <div class="welcome-box">
+    <div class="welcome-header">
+      <div class="welcome-greeting">✦ Bem-vindo ao LexDesk</div>
+      <div class="welcome-frase" id="welcomeFrase"></div>
+      <div class="welcome-frase-autor" id="welcomeAutor"></div>
+    </div>
+    <div class="welcome-body">
+      <div class="welcome-section-title">Prazos próximos</div>
+      <div id="welcomePrazos"></div>
+    </div>
+    <div class="welcome-footer">
+      <div class="welcome-date" id="welcomeDate"></div>
+      <button class="welcome-close-btn" onclick="fecharWelcome()">Iniciar dia →</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATION -->
+<div class="notif" id="notif">
+  <div class="notif-title" id="notifTitle">LexDesk</div>
+  <div id="notifMsg"></div>
+</div>
+
+<script>
+// ── STATE ──
+let state = {
+  clientes: [],
+  processos: [],
+  honorarios: [],
+  documentos: [],
+};
+
+// Load from localStorage
+function loadState() {
+  try {
+    const saved = localStorage.getItem('lexdesk_state');
+    if (saved) state = JSON.parse(saved);
+  } catch(e) {}
+}
+function saveState() {
+  localStorage.setItem('lexdesk_state', JSON.stringify(state));
+}
+
+// ── NAVIGATION ──
+const panels = ['dashboard','clientes','processos','honorarios','documentos','ia','config'];
+const titles = { dashboard:'Dashboard', clientes:'Clientes', processos:'Processos', honorarios:'Honorários', documentos:'Documentos', ia:'Assistente IA', config:'Configurações' };
+const actions = { dashboard:'+ Novo Processo', clientes:'+ Novo Cliente', processos:'+ Novo Processo', honorarios:'+ Lançamento', documentos:'+ Documento', ia:'', config:'' };
+const actionFns = { dashboard:()=>openModal('processo'), clientes:()=>openModal('cliente'), processos:()=>openModal('processo'), honorarios:()=>openModal('honorario'), documentos:()=>openModal('documento'), ia:()=>{}, config:()=>{} };
+
+function navigate(p) {
+  panels.forEach(id => {
+    document.getElementById('panel-'+id).classList.remove('active');
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  });
+  document.getElementById('panel-'+p).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(el => {
+    if (el.textContent.toLowerCase().includes(titles[p].toLowerCase().slice(0,4))) el.classList.add('active');
+  });
+  document.querySelectorAll('.nav-item')[panels.indexOf(p)].classList.add('active');
+  document.getElementById('pageTitle').textContent = titles[p];
+  const btn = document.getElementById('topAction');
+  btn.textContent = actions[p];
+  btn.onclick = actionFns[p];
+  btn.style.display = actions[p] ? '' : 'none';
+  if (p === 'dashboard') renderDashboard();
+  if (p === 'clientes') renderClientes();
+  if (p === 'processos') renderProcessos();
+  if (p === 'honorarios') renderHonorarios();
+  if (p === 'documentos') renderDocs();
+}
+
+// ── MODAL ──
+let currentModal = null;
+function openModal(type, id) {
+  currentModal = { type, id };
+  const overlay = document.getElementById('modalOverlay');
+  const titles_m = { cliente:'Novo Cliente', processo:'Novo Processo', honorario:'Novo Lançamento', documento:'Novo Documento', timeline:'Timeline do Processo' };
+  document.getElementById('modalTitle').textContent = id ? 'Editar' : titles_m[type];
+  document.getElementById('modalBody').innerHTML = getModalBody(type, id);
+  document.getElementById('modalFooter').innerHTML = getModalFooter(type, id);
+  overlay.classList.add('open');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function closeModalOutside(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+
+function getModalBody(type, id) {
+  if (type === 'cliente') {
+    const c = id ? state.clientes.find(x=>x.id===id) : {};
+    return `
+      <div class="form-row">
+        <div class="form-group"><label>Nome completo</label><input id="f_nome" value="${(c&&c.nome)||''}" placeholder="Dr. João Silva"></div>
+        <div class="form-group"><label>CPF / CNPJ</label><input id="f_cpf" value="${(c&&c.cpf)||''}" placeholder="000.000.000-00"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Telefone</label><input id="f_tel" value="${(c&&c.tel)||''}" placeholder="(44) 99999-0000"></div>
+        <div class="form-group"><label>Email</label><input id="f_email" value="${(c&&c.email)||''}" placeholder="cliente@email.com"></div>
+      </div>
+      <div class="form-group"><label>Endereço</label><input id="f_end" value="${(c&&c.end)||''}" placeholder="Rua, número, cidade"></div>
+      <div class="form-group"><label>Observações</label><textarea id="f_obs">${(c&&c.obs)||''}</textarea></div>`;
+  }
+  if (type === 'processo') {
+    const p = id ? state.processos.find(x=>x.id===id) : {};
+    const opts = state.clientes.map(c=>`<option value="${c.id}" ${(p&&p.clienteId===c.id)?'selected':''}>${c.nome}</option>`).join('');
+    return `
+      <div class="form-row">
+        <div class="form-group"><label>Nº do Processo</label><input id="f_num" value="${(p&&p.num)||''}" placeholder="0000000-00.0000.0.00.0000"></div>
+        <div class="form-group"><label>Cliente</label><select id="f_cliente"><option value="">Selecione...</option>${opts}</select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Tipo</label><select id="f_tipo">
+          ${['Cível','Trabalhista','Criminal','Família','Tributário','Administrativo','Outro'].map(t=>`<option ${(p&&p.tipo===t)?'selected':''}>${t}</option>`).join('')}
+        </select></div>
+        <div class="form-group"><label>Status</label><select id="f_status">
+          ${['Ativo','Aguardando','Arquivado'].map(t=>`<option ${(p&&p.status===t)?'selected':''}>${t}</option>`).join('')}
+        </select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Próximo Prazo</label><input type="date" id="f_prazo" value="${(p&&p.prazo)||''}"></div>
+        <div class="form-group"><label>Descrição do Prazo</label><input id="f_prazodesc" value="${(p&&p.prazodesc)||''}" placeholder="Ex: Contestação, Recurso..."></div>
+      </div>
+      <div class="form-group"><label>Objeto / Descrição</label><textarea id="f_objeto">${(p&&p.objeto)||''}</textarea></div>`;
+  }
+  if (type === 'honorario') {
+    const h = id ? state.honorarios.find(x=>x.id===id) : {};
+    const opts = state.clientes.map(c=>`<option value="${c.id}" ${(h&&h.clienteId===c.id)?'selected':''}>${c.nome}</option>`).join('');
+    return `
+      <div class="form-group"><label>Descrição</label><input id="f_desc" value="${(h&&h.desc)||''}" placeholder="Ex: Honorários advocatícios - Processo X"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Cliente</label><select id="f_hcliente"><option value="">Selecione...</option>${opts}</select></div>
+        <div class="form-group"><label>Valor (R$)</label><input id="f_valor" type="number" value="${(h&&h.valor)||''}" placeholder="0,00"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Vencimento</label><input type="date" id="f_hvenc" value="${(h&&h.venc)||''}"></div>
+        <div class="form-group"><label>Status</label><select id="f_hstatus">
+          ${['Pendente','Pago','Vencido'].map(t=>`<option ${(h&&h.status===t)?'selected':''}>${t}</option>`).join('')}
+        </select></div>
+      </div>
+      <div class="form-group"><label>Observações</label><textarea id="f_hobs">${(h&&h.obs)||''}</textarea></div>`;
+  }
+  if (type === 'documento') {
+    const opts = state.clientes.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('');
+    const opts2 = state.processos.map(p=>`<option value="${p.id}">${p.num}</option>`).join('');
+    return `
+      <div class="form-group"><label>Nome do Documento</label><input id="f_dnome" placeholder="Ex: Contrato, Procuração, Laudo..."></div>
+      <div class="form-row">
+        <div class="form-group"><label>Cliente</label><select id="f_dcliente"><option value="">Selecione...</option>${opts}</select></div>
+        <div class="form-group"><label>Processo</label><select id="f_dprocesso"><option value="">Nenhum</option>${opts2}</select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Tipo</label><select id="f_dtipo">
+          ${['Procuração','Contrato','Petição','Laudo','Sentença','Recurso','Identidade','CPF','Outro'].map(t=>`<option>${t}</option>`).join('')}
+        </select></div>
+        <div class="form-group"><label>Data</label><input type="date" id="f_ddata" value="${new Date().toISOString().slice(0,10)}"></div>
+      </div>
+      <div class="form-group">
+        <label>Arquivo PDF (opcional)</label>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('f_dpdf').click()">
+          <div class="upload-icon">📎</div>
+          <div class="upload-txt" id="uploadTxt">Clique para selecionar PDF</div>
+          <div class="upload-sub">Máximo 5 MB · salvo localmente no navegador</div>
+        </div>
+        <input type="file" id="f_dpdf" accept="application/pdf" style="display:none" onchange="handlePdfSelect(event)">
+      </div>
+      <div class="form-group"><label>Observações</label><textarea id="f_dobs" placeholder="Anotações sobre o documento..."></textarea></div>`;
+  }
+  if (type === 'timeline') {
+    const p = state.processos.find(x=>x.id===id);
+    if (!p) return '';
+    const tl = (p.timeline||[]).map(t=>`
+      <div class="tl-item">
+        <div class="tl-dot gold">📌</div>
+        <div class="tl-body">
+          <div class="tl-title">${t.titulo}</div>
+          <div class="tl-meta">${t.data} ${t.autor?'· '+t.autor:''}</div>
+          ${t.desc?`<div style="font-size:12px;color:var(--text2);margin-top:4px">${t.desc}</div>`:''}
+        </div>
+      </div>`).join('') || '<div class="empty"><div class="empty-text">Nenhuma movimentação registrada</div></div>';
+    return `
+      <div class="timeline">${tl}</div>
+      <div class="divider"></div>
+      <div class="form-group"><label>Nova Movimentação</label><input id="f_tltitulo" placeholder="Ex: Petição protocolada, Decisão recebida..."></div>
+      <div class="form-row">
+        <div class="form-group"><label>Data</label><input type="date" id="f_tldata" value="${new Date().toISOString().slice(0,10)}"></div>
+        <div class="form-group"><label>Responsável</label><input id="f_tlautor" placeholder="Dr. Rafael"></div>
+      </div>
+      <div class="form-group"><label>Detalhes</label><textarea id="f_tldesc"></textarea></div>`;
+  }
+  return '';
+}
+
+function getModalFooter(type, id) {
+  if (type === 'timeline') return `<button class="btn btn-ghost" onclick="closeModal()">Fechar</button><button class="btn btn-primary" onclick="salvarTimeline('${id}')">Adicionar</button>`;
+  return `<button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>${id?`<button class="btn btn-danger btn-sm" onclick="excluir('${type}','${id}')">Excluir</button>`:''}<button class="btn btn-primary" onclick="salvar('${type}','${id||''}')">Salvar</button>`;
+}
+
+// ── SALVAR ──
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function gv(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+function salvar(type, id) {
+  if (type === 'cliente') {
+    const obj = { id: id||uid(), nome: gv('f_nome'), cpf: gv('f_cpf'), tel: gv('f_tel'), email: gv('f_email'), end: gv('f_end'), obs: gv('f_obs') };
+    if (!obj.nome) { showNotif('Informe o nome do cliente.'); return; }
+    if (id) { const i = state.clientes.findIndex(x=>x.id===id); state.clientes[i]=obj; }
+    else state.clientes.push(obj);
+  } else if (type === 'processo') {
+    const obj = { id: id||uid(), num: gv('f_num'), clienteId: gv('f_cliente'), tipo: gv('f_tipo'), status: gv('f_status'), prazo: gv('f_prazo'), prazodesc: gv('f_prazodesc'), objeto: gv('f_objeto'), timeline: id ? (state.processos.find(x=>x.id===id)||{}).timeline||[] : [] };
+    if (!obj.num) { showNotif('Informe o número do processo.'); return; }
+    if (id) { const i = state.processos.findIndex(x=>x.id===id); state.processos[i]=obj; }
+    else state.processos.push(obj);
+  } else if (type === 'honorario') {
+    const obj = { id: id||uid(), desc: gv('f_desc'), clienteId: gv('f_hcliente'), valor: parseFloat(gv('f_valor'))||0, venc: gv('f_hvenc'), status: gv('f_hstatus'), obs: gv('f_hobs') };
+    if (!obj.desc) { showNotif('Informe a descrição.'); return; }
+    if (id) { const i = state.honorarios.findIndex(x=>x.id===id); state.honorarios[i]=obj; }
+    else state.honorarios.push(obj);
+  } else if (type === 'documento') {
+    const obj = { id: id||uid(), nome: gv('f_dnome'), clienteId: gv('f_dcliente'), processoId: gv('f_dprocesso'), tipo: gv('f_dtipo'), data: gv('f_ddata'), obs: gv('f_dobs'), pdfKey: window._pendingPdfKey||null, pdfName: window._pendingPdfName||null };
+    if (!obj.nome) { showNotif('Informe o nome do documento.'); return; }
+    state.documentos.push(obj);
+    window._pendingPdfKey = null;
+    window._pendingPdfName = null;
+  }
+  saveState();
+  closeModal();
+  renderAll();
+  showNotif('✅ Salvo com sucesso!');
+}
+
+function salvarTimeline(pid) {
+  const titulo = gv('f_tltitulo');
+  if (!titulo) { showNotif('Informe a movimentação.'); return; }
+  const p = state.processos.find(x=>x.id===pid);
+  if (!p) return;
+  if (!p.timeline) p.timeline = [];
+  p.timeline.unshift({ titulo, data: gv('f_tldata'), autor: gv('f_tlautor'), desc: gv('f_tldesc') });
+  saveState();
+  closeModal();
+  showNotif('📌 Movimentação adicionada!');
+}
+
+function excluir(type, id) {
+  if (!confirm('Confirmar exclusão?')) return;
+  if (type === 'cliente') state.clientes = state.clientes.filter(x=>x.id!==id);
+  if (type === 'processo') state.processos = state.processos.filter(x=>x.id!==id);
+  if (type === 'honorario') state.honorarios = state.honorarios.filter(x=>x.id!==id);
+  if (type === 'documento') state.documentos = state.documentos.filter(x=>x.id!==id);
+  saveState();
+  closeModal();
+  renderAll();
+  showNotif('🗑️ Excluído.');
+}
+
+// ── RENDERS ──
+function clienteNome(id) {
+  const c = state.clientes.find(x=>x.id===id);
+  return c ? c.nome : '—';
+}
+function diasParaPrazo(prazo) {
+  if (!prazo) return null;
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const d = new Date(prazo+'T00:00:00');
+  return Math.ceil((d-hoje)/(1000*60*60*24));
+}
+function prazoClass(dias) {
+  if (dias === null) return 'ok';
+  if (dias <= 3) return 'urgente';
+  if (dias <= 7) return 'atencao';
+  return 'ok';
+}
+function fmtData(d) {
+  if (!d) return '—';
+  const [y,m,dd] = d.split('-');
+  return `${dd}/${m}/${y}`;
+}
+function fmtVal(v) {
+  return 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:2});
+}
+
+function renderDashboard() {
+  // KPIs
+  const ativos = state.processos.filter(p=>p.status==='Ativo').length;
+  const urgentes = state.processos.filter(p=>{ const d=diasParaPrazo(p.prazo); return d!==null && d<=3; }).length;
+  const receber = state.honorarios.filter(h=>h.status==='Pendente').reduce((a,h)=>a+h.valor,0);
+  document.getElementById('kpi-processos').textContent = ativos;
+  document.getElementById('kpi-urgentes').textContent = urgentes;
+  document.getElementById('kpi-receber').textContent = fmtVal(receber);
+  document.getElementById('kpi-clientes').textContent = state.clientes.length;
+
+  // Prazos
+  const pEl = document.getElementById('dash-prazos');
+  const comPrazo = state.processos.filter(p=>p.prazo).sort((a,b)=>a.prazo.localeCompare(b.prazo)).slice(0,5);
+  if (!comPrazo.length) { pEl.innerHTML = '<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Nenhum prazo cadastrado</div></div>'; }
+  else {
+    pEl.innerHTML = comPrazo.map(p=>{
+      const dias = diasParaPrazo(p.prazo);
+      const cls = prazoClass(dias);
+      const label = dias===null?'—':dias===0?'Hoje':dias<0?`${Math.abs(dias)}d atrás`:`${dias}d`;
+      return `<div class="prazo-item" onclick="openModal('timeline','${p.id}')">
+        <div class="prazo-dot ${cls}"></div>
+        <div class="prazo-info">
+          <div class="prazo-desc">${p.prazodesc||'Prazo'}</div>
+          <div class="prazo-proc">${p.num} · ${clienteNome(p.clienteId)}</div>
+        </div>
+        <div class="prazo-dias ${cls}">${label}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Últimos clientes
+  const cEl = document.getElementById('dash-clientes');
+  const ultimos = [...state.clientes].reverse().slice(0,5);
+  if (!ultimos.length) { cEl.innerHTML = '<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">Nenhum cliente cadastrado</div></div>'; }
+  else {
+    cEl.innerHTML = ultimos.map(c=>`
+      <div class="prazo-item" onclick="openModal('cliente','${c.id}')">
+        <div style="width:32px;height:32px;background:var(--gold-dim);border:1px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;color:var(--gold);font-size:13px;flex-shrink:0">${c.nome.charAt(0)}</div>
+        <div class="prazo-info">
+          <div class="prazo-desc">${c.nome}</div>
+          <div class="prazo-proc">${c.cpf||c.email||'—'}</div>
+        </div>
+        <div style="font-size:11px;color:var(--text3)">${state.processos.filter(p=>p.clienteId===c.id).length} proc.</div>
+      </div>`).join('');
+  }
+}
+
+function renderClientes() {
+  const q = (document.getElementById('searchCliente')||{}).value||'';
+  const list = state.clientes.filter(c=>c.nome.toLowerCase().includes(q.toLowerCase()));
+  const tb = document.getElementById('tb-clientes');
+  if (!list.length) { tb.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">👤</div><div class="empty-text">Nenhum cliente encontrado</div></div></td></tr>'; return; }
+  tb.innerHTML = list.map(c=>{
+    const nProc = state.processos.filter(p=>p.clienteId===c.id).length;
+    return `<tr>
+      <td class="highlight">${c.nome}</td>
+      <td>${c.cpf||'—'}</td>
+      <td>${c.tel||'—'}</td>
+      <td>${c.email||'—'}</td>
+      <td>${nProc}</td>
+      <td><button class="action-btn" onclick="openModal('cliente','${c.id}')">✎</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderProcessos() {
+  const q = (document.getElementById('searchProcesso')||{}).value||'';
+  const list = state.processos.filter(p=>p.num.toLowerCase().includes(q.toLowerCase())||clienteNome(p.clienteId).toLowerCase().includes(q.toLowerCase()));
+  const tb = document.getElementById('tb-processos');
+  if (!list.length) { tb.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">⚖️</div><div class="empty-text">Nenhum processo encontrado</div></div></td></tr>'; return; }
+  tb.innerHTML = list.map(p=>{
+    const dias = diasParaPrazo(p.prazo);
+    const cls = prazoClass(dias);
+    const label = dias===null?'—':dias===0?'Hoje':dias<0?`Venceu ${Math.abs(dias)}d atrás`:`${dias}d`;
+    const statusMap = { Ativo:'badge-ativo', Aguardando:'badge-aguardando', Arquivado:'badge-arquivado' };
+    return `<tr>
+      <td class="highlight" style="font-family:'DM Mono',monospace;font-size:12px">${p.num}</td>
+      <td>${clienteNome(p.clienteId)}</td>
+      <td>${p.tipo}</td>
+      <td><span class="prazo-dias ${cls}" style="display:inline-block">${fmtData(p.prazo)} ${p.prazo?'('+label+')':''}</span></td>
+      <td><span class="badge ${statusMap[p.status]||'badge-ativo'}">${p.status}</span></td>
+      <td style="display:flex;gap:4px">
+        <button class="action-btn" title="Timeline" onclick="openModal('timeline','${p.id}')">📋</button>
+        <button class="action-btn" onclick="openModal('processo','${p.id}')">✎</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderHonorarios() {
+  const q = (document.getElementById('searchHon')||{}).value||'';
+  const list = state.honorarios.filter(h=>h.desc.toLowerCase().includes(q.toLowerCase()));
+  const tb = document.getElementById('tb-honorarios');
+
+  const recebido = state.honorarios.filter(h=>h.status==='Pago').reduce((a,h)=>a+h.valor,0);
+  const pendente = state.honorarios.filter(h=>h.status==='Pendente').reduce((a,h)=>a+h.valor,0);
+  const vencido = state.honorarios.filter(h=>h.status==='Vencido').reduce((a,h)=>a+h.valor,0);
+  document.getElementById('fin-recebido').textContent = fmtVal(recebido);
+  document.getElementById('fin-pendente').textContent = fmtVal(pendente);
+  document.getElementById('fin-vencido').textContent = fmtVal(vencido);
+
+  if (!list.length) { tb.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">💰</div><div class="empty-text">Nenhum lançamento encontrado</div></div></td></tr>'; return; }
+  const statusMap = { Pago:'badge-pago', Pendente:'badge-pendente', Vencido:'badge-vencido' };
+  tb.innerHTML = list.map(h=>`<tr>
+    <td class="highlight">${h.desc}</td>
+    <td>${clienteNome(h.clienteId)}</td>
+    <td style="font-family:'DM Mono',monospace">${fmtVal(h.valor)}</td>
+    <td>${fmtData(h.venc)}</td>
+    <td><span class="badge ${statusMap[h.status]||'badge-pendente'}">${h.status}</span></td>
+    <td><button class="action-btn" onclick="openModal('honorario','${h.id}')">✎</button></td>
+  </tr>`).join('');
+}
+
+function renderDocs() {
+  const q = (document.getElementById('searchDoc')||{}).value||'';
+  const list = state.documentos.filter(d=>d.nome.toLowerCase().includes(q.toLowerCase()));
+  const el = document.getElementById('lista-docs');
+  const icones = { Procuração:'📜', Contrato:'📋', Petição:'✍️', Laudo:'🔬', Sentença:'⚖️', Recurso:'📤', Identidade:'🪪', CPF:'🪪', Outro:'📄' };
+  if (!list.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">📁</div><div class="empty-text">Nenhum documento encontrado</div></div>'; return; }
+  el.innerHTML = list.map(d=>`
+    <div class="doc-item">
+      <div class="doc-icon">${icones[d.tipo]||'📄'}</div>
+      <div style="flex:1">
+        <div class="doc-name">${d.nome}</div>
+        <div class="doc-meta">${d.tipo} · ${clienteNome(d.clienteId)} · ${fmtData(d.data)}${d.pdfKey?' · <span style="color:var(--green)">📎 PDF anexado</span>':''}</div>
+      </div>
+      <div style="display:flex;gap:4px;align-items:center">
+        ${d.pdfKey ? `<button class="action-btn" title="Abrir PDF" onclick="abrirPdf('${d.pdfKey}','${d.pdfName||d.nome}')">👁</button>
+        <button class="action-btn" title="Baixar PDF" onclick="baixarPdf('${d.pdfKey}','${d.pdfName||d.nome}')">⬇</button>` : ''}
+        <button class="action-btn" onclick="excluirDoc('${d.id}','${d.pdfKey||''}')">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+// ── PDF HELPERS ──
+let _pendingPdfData = null;
+window._pendingPdfKey = null;
+window._pendingPdfName = null;
+
+function handlePdfSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { showNotif('⚠️ Arquivo maior que 5 MB.'); return; }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const key = 'lexdesk_pdf_' + uid();
+    try {
+      localStorage.setItem(key, e.target.result);
+      window._pendingPdfKey = key;
+      window._pendingPdfName = file.name;
+      const zone = document.getElementById('uploadZone');
+      if (zone) {
+        zone.classList.add('has-file');
+        document.getElementById('uploadTxt').textContent = '✅ ' + file.name;
+      }
+    } catch(err) {
+      showNotif('⚠️ Sem espaço no navegador. Tente um PDF menor.');
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function abrirPdf(key, nome) {
+  const data = localStorage.getItem(key);
+  if (!data) { showNotif('PDF não encontrado.'); return; }
+  const win = window.open();
+  win.document.write(`<html><head><title>${nome}</title></head><body style="margin:0"><embed src="${data}" width="100%" height="100%" type="application/pdf"></body></html>`);
+}
+
+function baixarPdf(key, nome) {
+  const data = localStorage.getItem(key);
+  if (!data) { showNotif('PDF não encontrado.'); return; }
+  const a = document.createElement('a');
+  a.href = data;
+  a.download = nome.endsWith('.pdf') ? nome : nome + '.pdf';
+  a.click();
+}
+
+function excluirDoc(id, pdfKey) {
+  if (!confirm('Confirmar exclusão?')) return;
+  if (pdfKey) { try { localStorage.removeItem(pdfKey); } catch(e) {} }
+  state.documentos = state.documentos.filter(x=>x.id!==id);
+  saveState();
+  renderDocs();
+  showNotif('🗑️ Excluído.');
+}
+
+function renderAll() {
+  renderDashboard();
+  renderClientes();
+  renderProcessos();
+  renderHonorarios();
+  renderDocs();
+}
+
+// ── NOTIFICAÇÃO ──
+function showNotif(msg) {
+  const el = document.getElementById('notif');
+  document.getElementById('notifMsg').textContent = msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 3000);
+}
+
+// ── IA ──
+function getApiKey() { return localStorage.getItem('lexdesk_apikey') || ''; }
+
+async function enviarIA() {
+  const input = document.getElementById('iaInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  const msgs = document.getElementById('iaMsgs');
+  msgs.innerHTML += `<div class="ia-msg user">${msg}</div>`;
+  msgs.innerHTML += `<div class="ia-msg loading" id="iaLoading">✦ Consultando assistente jurídico...</div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+  document.getElementById('iaBtn').disabled = true;
+
+  try {
+    const ctx = `Você é um assistente jurídico especializado em Direito brasileiro. 
+Responda de forma clara, objetiva e profissional. 
+Contexto do escritório: ${state.processos.length} processos ativos, áreas de atuação principais: ${[...new Set(state.processos.map(p=>p.tipo))].join(', ')||'não informadas'}.
+Sempre mencione quando o assunto requer análise de caso específico ou consulta à legislação atualizada.`;
+
+    const res = await fetch('https://lexdesk-proxy.durvalsimardi.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': getApiKey(), 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: ctx,
+        messages: [{ role: 'user', content: msg }]
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'Não foi possível obter resposta.';
+    document.getElementById('iaLoading').remove();
+    msgs.innerHTML += `<div class="ia-msg assistant">${reply.replace(/\n/g,'<br>')}</div>`;
+  } catch(e) {
+    document.getElementById('iaLoading').remove();
+    msgs.innerHTML += `<div class="ia-msg assistant" style="color:#e74c3c">Erro ao conectar com a IA. Verifique a chave da API.</div>`;
+  }
+  msgs.scrollTop = msgs.scrollHeight;
+  document.getElementById('iaBtn').disabled = false;
+}
+
+function iaQuick(txt) {
+  document.getElementById('iaInput').value = txt;
+  navigate('ia');
+  setTimeout(enviarIA, 100);
+}
+
+// ── CONFIGURAÇÕES ──
+function carregarConfig() {
+  const cfg = JSON.parse(localStorage.getItem('lexdesk_config')||'{}');
+  setVal('cfg_nome', cfg.nome||'');
+  setVal('cfg_adv', cfg.adv||'');
+  setVal('cfg_oab', cfg.oab||'');
+  setVal('cfg_tel', cfg.tel||'');
+  setVal('cfg_apikey', localStorage.getItem('lexdesk_apikey')||'');
+  // Atualiza nome na sidebar
+  if (cfg.adv) document.querySelector('.user-name').textContent = cfg.adv;
+  if (cfg.nome) document.querySelector('.user-role').textContent = cfg.nome;
+}
+
+function setVal(id, val) { const el = document.getElementById(id); if (el) el.value = val; }
+
+function salvarConfig() {
+  const cfg = {
+    nome: document.getElementById('cfg_nome').value.trim(),
+    adv: document.getElementById('cfg_adv').value.trim(),
+    oab: document.getElementById('cfg_oab').value.trim(),
+    tel: document.getElementById('cfg_tel').value.trim(),
+  };
+  const apikey = document.getElementById('cfg_apikey').value.trim();
+  localStorage.setItem('lexdesk_config', JSON.stringify(cfg));
+  if (apikey) localStorage.setItem('lexdesk_apikey', apikey);
+  // Atualiza sidebar
+  if (cfg.adv) document.querySelector('.user-name').textContent = cfg.adv;
+  if (cfg.nome) document.querySelector('.user-role').textContent = cfg.nome;
+  showNotif('✅ Configurações salvas!');
+}
+
+function toggleApiKey() {
+  const el = document.getElementById('cfg_apikey');
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+async function testarIA() {
+  const key = getApiKey();
+  const statusEl = document.getElementById('cfg_status');
+  statusEl.style.display = 'block';
+  if (!key) {
+    statusEl.style.background = 'var(--red-dim)';
+    statusEl.style.color = '#e74c3c';
+    statusEl.textContent = '⚠️ Nenhuma chave configurada. Insira sua chave e salve primeiro.';
+    return;
+  }
+  statusEl.style.background = 'var(--bg4)';
+  statusEl.style.color = 'var(--text3)';
+  statusEl.textContent = '🔄 Testando conexão...';
+  try {
+    const res = await fetch('https://lexdesk-proxy.durvalsimardi.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 20, messages: [{ role: 'user', content: 'Responda apenas: OK' }] })
+    });
+    const data = await res.json();
+    if (data.content?.[0]?.text) {
+      statusEl.style.background = 'var(--green-dim)';
+      statusEl.style.color = 'var(--green)';
+      statusEl.textContent = '✅ Conexão funcionando! IA pronta para uso.';
+    } else {
+      throw new Error(data.error?.message || 'Resposta inesperada');
+    }
+  } catch(e) {
+    statusEl.style.background = 'var(--red-dim)';
+    statusEl.style.color = '#e74c3c';
+    statusEl.textContent = '❌ Erro: ' + (e.message || 'Chave inválida ou sem créditos.');
+  }
+}
+
+// ── WELCOME POPUP ──
+const frases = [
+  { txt: '"A justiça atrasada não é justiça, senão injustiça qualificada."', autor: '— Rui Barbosa' },
+  { txt: '"O advogado é indispensável à administração da justiça."', autor: '— Art. 133, CF/88' },
+  { txt: '"Não há liberdade sem lei, nem lei sem justiça."', autor: '— Montesquieu' },
+  { txt: '"O direito é a arte do bom e do justo."', autor: '— Celso, jurista romano' },
+  { txt: '"A lei é a razão livre das paixões."', autor: '— Aristóteles' },
+  { txt: '"Conheça todas as teorias, domine todas as técnicas, mas ao tocar uma alma humana, seja apenas outra alma humana."', autor: '— Carl Jung' },
+  { txt: '"O sucesso é a soma de pequenos esforços repetidos dia após dia."', autor: '— Robert Collier' },
+  { txt: '"Que a sua prática seja tão grande quanto o seu propósito."', autor: '— LexDesk' },
+];
+
+function mostrarWelcome() {
+  const frase = frases[Math.floor(Math.random() * frases.length)];
+  document.getElementById('welcomeFrase').textContent = frase.txt;
+  document.getElementById('welcomeAutor').textContent = frase.autor;
+
+  // Data formatada
+  const hoje = new Date();
+  const diasSemana = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+  const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  document.getElementById('welcomeDate').textContent =
+    `${diasSemana[hoje.getDay()]}, ${hoje.getDate()} de ${meses[hoje.getMonth()]} de ${hoje.getFullYear()}`;
+
+  // Prazos próximos (até 10 dias)
+  const comPrazo = state.processos
+    .filter(p => p.prazo)
+    .map(p => ({ ...p, dias: diasParaPrazo(p.prazo) }))
+    .filter(p => p.dias !== null && p.dias <= 10)
+    .sort((a, b) => a.dias - b.dias)
+    .slice(0, 5);
+
+  const el = document.getElementById('welcomePrazos');
+  if (!comPrazo.length) {
+    el.innerHTML = '<div class="welcome-empty">✅ Nenhum prazo urgente nos próximos 10 dias.</div>';
+  } else {
+    el.innerHTML = comPrazo.map(p => {
+      let cls, label;
+      if (p.dias <= 0) { cls = 'hoje'; label = p.dias === 0 ? 'HOJE' : `${Math.abs(p.dias)}d atrás`; }
+      else if (p.dias <= 3) { cls = 'urgente'; label = p.dias === 1 ? 'Amanhã' : `${p.dias} dias`; }
+      else if (p.dias <= 7) { cls = 'atencao'; label = `${p.dias} dias`; }
+      else { cls = 'ok'; label = `${p.dias} dias`; }
+      return `<div class="welcome-prazo-item" onclick="fecharWelcome();navigate('processos');setTimeout(()=>openModal('timeline','${p.id}'),100)">
+        <div class="welcome-prazo-badge ${cls}">${label}</div>
+        <div class="welcome-prazo-info">
+          <div class="welcome-prazo-desc">${p.prazodesc || 'Prazo processual'}</div>
+          <div class="welcome-prazo-proc">${p.num} · ${clienteNome(p.clienteId)}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('welcomeOverlay').style.display = 'flex';
+}
+
+function fecharWelcome() {
+  const el = document.getElementById('welcomeOverlay');
+  el.style.opacity = '0';
+  el.style.transition = 'opacity 0.3s';
+  setTimeout(() => el.style.display = 'none', 300);
+}
+
+// ── INIT ──
+loadState();
+renderAll();
+
+// Adicionar dados demo se vazio
+if (!state.clientes.length) {
+  state.clientes = [
+    { id: uid(), nome: 'Maria Aparecida Santos', cpf: '123.456.789-00', tel: '(44) 99123-4567', email: 'maria@email.com', end: 'Rua das Flores, 123 - Maringá/PR', obs: '' },
+    { id: uid(), nome: 'João Carlos Oliveira', cpf: '987.654.321-00', tel: '(44) 98765-4321', email: 'joao@empresa.com', end: 'Av. Brasil, 456 - Londrina/PR', obs: 'Cliente desde 2022' },
+  ];
+  const c1 = state.clientes[0].id, c2 = state.clientes[1].id;
+  state.processos = [
+    { id: uid(), num: '0001234-56.2024.8.16.0001', clienteId: c1, tipo: 'Trabalhista', status: 'Ativo', prazo: new Date(Date.now()+2*86400000).toISOString().slice(0,10), prazodesc: 'Apresentar contestação', objeto: 'Ação trabalhista - horas extras', timeline: [{titulo:'Petição inicial protocolada', data:'2024-01-15', autor:'Dr. Rafael', desc:''}] },
+    { id: uid(), num: '0005678-90.2024.8.16.0002', clienteId: c2, tipo: 'Cível', status: 'Ativo', prazo: new Date(Date.now()+8*86400000).toISOString().slice(0,10), prazodesc: 'Recurso de apelação', objeto: 'Cobrança de dívida', timeline: [] },
+    { id: uid(), num: '0009999-11.2023.8.16.0003', clienteId: c1, tipo: 'Família', status: 'Aguardando', prazo: '', prazodesc: '', objeto: 'Inventário', timeline: [] },
+  ];
+  state.honorarios = [
+    { id: uid(), desc: 'Honorários – Ação trabalhista', clienteId: c1, valor: 3500, venc: new Date(Date.now()+15*86400000).toISOString().slice(0,10), status: 'Pendente', obs: '' },
+    { id: uid(), desc: 'Honorários – Ação de cobrança (entrada)', clienteId: c2, valor: 1500, venc: new Date(Date.now()-5*86400000).toISOString().slice(0,10), status: 'Pago', obs: '' },
+    { id: uid(), desc: 'Honorários – Inventário (parcela 1)', clienteId: c1, valor: 2000, venc: new Date(Date.now()-10*86400000).toISOString().slice(0,10), status: 'Vencido', obs: '' },
+  ];
+  state.documentos = [
+    { id: uid(), nome: 'Procuração Ad Judicia', clienteId: c1, processoId: '', tipo: 'Procuração', data: '2024-01-10', obs: 'Assinada com firma reconhecida' },
+    { id: uid(), nome: 'Carteira de Trabalho', clienteId: c1, processoId: '', tipo: 'Outro', data: '2024-01-10', obs: '' },
+  ];
+  saveState();
+  renderAll();
+}
+
+// Mostrar popup de boas-vindas após carregar tudo
+setTimeout(mostrarWelcome, 500);
+</script>
+</body>
+</html>
